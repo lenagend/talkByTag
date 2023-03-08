@@ -6,6 +6,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
@@ -16,21 +18,18 @@ public class Post {
     String writer;
     String title;
     String contents;
-    @CreatedDate
-    Date createdDate;
-    @LastModifiedDate
-    Date modifiedDate;
-    @Version
-    private long version;
+    LocalDateTime createdDate;
+    LocalDateTime modifiedDate;
 
     public Post() {
     }
 
-    public Post(String hashTag, String writer, String title, String contents) {
+    public Post(String hashTag, String writer, String title, String contents, LocalDateTime createdDate) {
         this.hashTag = hashTag;
         this.writer = writer;
         this.title = title;
         this.contents = contents;
+        this.createdDate = createdDate;
     }
 
     public String getId() {
@@ -73,22 +72,21 @@ public class Post {
         this.contents = contents;
     }
 
-    public Date getCreatedDate() {
+    public LocalDateTime getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(Date createdDate) {
+    public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
     }
 
-    public Date getModifiedDate() {
+    public LocalDateTime getModifiedDate() {
         return modifiedDate;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
+    public void setModifiedDate(LocalDateTime modifiedDate) {
         this.modifiedDate = modifiedDate;
     }
-
 
 
     @Override
@@ -101,7 +99,6 @@ public class Post {
                 ", contents='" + contents + '\'' +
                 ", createdDate=" + createdDate +
                 ", modifiedDate=" + modifiedDate +
-                ", version=" + version +
                 '}';
     }
 
@@ -110,11 +107,11 @@ public class Post {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Post post = (Post) o;
-        return version == post.version && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(writer, post.writer) && Objects.equals(title, post.title) && Objects.equals(contents, post.contents) && Objects.equals(createdDate, post.createdDate) && Objects.equals(modifiedDate, post.modifiedDate);
+        return Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(writer, post.writer) && Objects.equals(title, post.title) && Objects.equals(contents, post.contents) && Objects.equals(createdDate, post.createdDate) && Objects.equals(modifiedDate, post.modifiedDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, hashTag, writer, title, contents, createdDate, modifiedDate, version);
+        return Objects.hash(id, hashTag, writer, title, contents, createdDate, modifiedDate);
     }
 }

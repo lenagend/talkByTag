@@ -6,6 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import reactor.test.StepVerifier;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataMongoTest
@@ -15,7 +19,7 @@ public class MongoDBSliceTest {
 
     @Test
     void postRepositorySavesPosts(){
-        Post samplePost = new Post( "hashTag1", "user1", "title1", "contents1");
+        Post samplePost = new Post( "hashTag1", "user1", "title1", "contents1", LocalDateTime.of(2023, 3, 8, 20, 24, 0));
 
         postRepository.save(samplePost)
                 .as(StepVerifier::create)

@@ -10,6 +10,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 
+import java.time.LocalDateTime;
+
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,7 +27,7 @@ public class HomeControllerSliceTest {
     @Test
     void homepage(){
         when(postService.getPosts()).thenReturn(Flux.just(
-                new Post( "hashTag1", "user1", "title1", "contents1")
+                new Post( "hashTag1", "user1", "title1", "contents1", LocalDateTime.of(2023, 3, 8, 20, 24, 0))
         ));
 
         client.get().uri("/").exchange()
