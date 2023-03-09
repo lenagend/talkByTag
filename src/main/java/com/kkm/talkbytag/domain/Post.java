@@ -18,7 +18,6 @@ public class Post {
     private String writer;
     private String contents;
     private LocalDateTime createdDate = LocalDateTime.now();
-    private LocalDateTime modifiedDate;
     private int liked = 0;
     private int comments = 0;
 
@@ -71,13 +70,6 @@ public class Post {
         this.createdDate = createdDate;
     }
 
-    public LocalDateTime getModifiedDate() {
-        return modifiedDate;
-    }
-
-    public void setModifiedDate(LocalDateTime modifiedDate) {
-        this.modifiedDate = modifiedDate;
-    }
 
     public int getLiked() {
         return liked;
@@ -100,12 +92,12 @@ public class Post {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Post post = (Post) o;
-        return liked == post.liked && comments == post.comments && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(writer, post.writer) && Objects.equals(contents, post.contents) && Objects.equals(createdDate, post.createdDate) && Objects.equals(modifiedDate, post.modifiedDate);
+        return liked == post.liked && comments == post.comments && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(writer, post.writer) && Objects.equals(contents, post.contents) && Objects.equals(createdDate, post.createdDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, hashTag, writer, contents, createdDate, modifiedDate, liked, comments);
+        return Objects.hash(id, hashTag, writer, contents, createdDate, liked, comments);
     }
 
     @Override
@@ -116,7 +108,6 @@ public class Post {
                 ", writer='" + writer + '\'' +
                 ", contents='" + contents + '\'' +
                 ", createdDate=" + createdDate +
-                ", modifiedDate=" + modifiedDate +
                 ", liked=" + liked +
                 ", comments=" + comments +
                 '}';

@@ -417,7 +417,7 @@ Header END -->
             <!-- Main content START -->
             <div class="col-md-8 col-lg-6 vstack gap-4">
                 <!-- Share feed START -->
-                <div class="card card-body">
+                <div class="card card-body" style="flex: 0 0 auto;">
                     <form class="w-100" action="/submit" method="post">
                     <div class="d-flex mb-3">
                         <!-- Avatar -->
@@ -440,6 +440,7 @@ Header END -->
                         </li>
                     </ul>
                     <!-- Share feed toolbar END -->
+                        <input type="hidden" name="hashTag" id="hashTag" class="form-control" value="newHashTag"/>
                     </form>
                 </div>
                 <!-- Share feed END -->
@@ -464,18 +465,10 @@ Header END -->
                                 </div>
                             </div>
                             <!-- Card feed action dropdown START -->
-                            <div class="dropdown">
-                                <a href="#" class="text-secondary btn btn-secondary-soft-hover py-1 px-2" id="cardFeedAction" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots"></i>
-                                </a>
-                                <!-- Card feed action dropdown menu -->
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="cardFeedAction">
-                                    <li><a class="dropdown-item" href="#"> <i class="bi bi-bookmark fa-fw pe-2"></i>Save post</a></li>
-                                    <li><a class="dropdown-item" href="#"> <i class="bi bi-x-circle fa-fw pe-2"></i>Hide post</a></li>
-                                    <li><a class="dropdown-item" href="#"> <i class="bi bi-slash-circle fa-fw pe-2"></i>Block</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#"> <i class="bi bi-flag fa-fw pe-2"></i>Report post</a></li>
-                                </ul>
+                            <div>
+                                <form th:method="delete" th:action="@{'/delete/' + ${post.id}}">
+                                <button type="submit" class="btn btn-danger-soft">삭제하기</button>
+                                </form>
                             </div>
                             <!-- Card feed action dropdown END -->
                         </div>

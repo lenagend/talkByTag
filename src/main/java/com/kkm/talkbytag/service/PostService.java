@@ -18,4 +18,6 @@ public class PostService {
     public Flux<Post> getPosts(){return this.postRepository.findAll();}
 
     public Mono<Post> savePost(Post post){return this.postRepository.save(post);}
+
+    public Mono<Void> deletePostById(String id){return this.postRepository.deleteById(id);}
 }

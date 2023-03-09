@@ -3,9 +3,7 @@ package com.kkm.talkbytag.Controller;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.service.PostService;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 
@@ -30,7 +28,11 @@ public class HomeController {
     @PostMapping("/submit")
     Mono<String> submit(@ModelAttribute Post post){
         post.setWriter("testUser");
-        post.setHashTag("HashTag1");
         return this.postService.savePost(post).thenReturn("redirect:/");
+    }
+
+    @DeleteMapping("/delete/{id}")
+    Mono<String> delete(@PathVariable String id){
+        return this.postService.deletePostById(id).thenReturn("redirect:/");
     }
 }
