@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
-@Document
 public class Post {
     private @Id String id;
     private String hashTag;
@@ -94,5 +93,32 @@ public class Post {
 
     public void setComments(int comments) {
         this.comments = comments;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Post post = (Post) o;
+        return liked == post.liked && comments == post.comments && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(writer, post.writer) && Objects.equals(contents, post.contents) && Objects.equals(createdDate, post.createdDate) && Objects.equals(modifiedDate, post.modifiedDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, hashTag, writer, contents, createdDate, modifiedDate, liked, comments);
+    }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id='" + id + '\'' +
+                ", hashTag='" + hashTag + '\'' +
+                ", writer='" + writer + '\'' +
+                ", contents='" + contents + '\'' +
+                ", createdDate=" + createdDate +
+                ", modifiedDate=" + modifiedDate +
+                ", liked=" + liked +
+                ", comments=" + comments +
+                '}';
     }
 }

@@ -14,8 +14,6 @@ public class TemplateDatabaseLoader {
     CommandLineRunner initialize(MongoOperations mongo) {
         return args -> {
             mongo.save(new Post( "hashTag1", "user1",  "contents1"));
-            mongo.save(new Post( "hashTag2", "user1", "contents2"));
-            mongo.save(new Post( "hashTag3", "user1",  "contents3"));
         };
     }
 }
