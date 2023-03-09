@@ -19,7 +19,7 @@ public class MongoDBSliceTest {
 
     @Test
     void postRepositorySavesPosts(){
-        Post samplePost = new Post( "hashTag1", "user1", "title1", "contents1", LocalDateTime.of(2023, 3, 8, 20, 24, 0));
+        Post samplePost = new Post( "hashTag1", "user1",  "contents1");
 
         postRepository.save(samplePost)
                 .as(StepVerifier::create)

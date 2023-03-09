@@ -1,5 +1,6 @@
 package com.kkm.talkbytag.domain;
 
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -14,22 +15,21 @@ import java.util.Objects;
 @Document
 public class Post {
     private @Id String id;
-    String hashTag;
-    String writer;
-    String title;
-    String contents;
-    LocalDateTime createdDate;
-    LocalDateTime modifiedDate;
+    private String hashTag;
+    private String writer;
+    private String contents;
+    private LocalDateTime createdDate = LocalDateTime.now();
+    private LocalDateTime modifiedDate;
+    private int liked = 0;
+    private int comments = 0;
 
     public Post() {
     }
 
-    public Post(String hashTag, String writer, String title, String contents, LocalDateTime createdDate) {
+    public Post(String hashTag, String writer,  String contents) {
         this.hashTag = hashTag;
         this.writer = writer;
-        this.title = title;
         this.contents = contents;
-        this.createdDate = createdDate;
     }
 
     public String getId() {
@@ -56,14 +56,6 @@ public class Post {
         this.writer = writer;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getContents() {
         return contents;
     }
@@ -88,30 +80,19 @@ public class Post {
         this.modifiedDate = modifiedDate;
     }
 
-
-    @Override
-    public String toString() {
-        return "Post{" +
-                "id='" + id + '\'' +
-                ", hashTag='" + hashTag + '\'' +
-                ", writer='" + writer + '\'' +
-                ", title='" + title + '\'' +
-                ", contents='" + contents + '\'' +
-                ", createdDate=" + createdDate +
-                ", modifiedDate=" + modifiedDate +
-                '}';
+    public int getLiked() {
+        return liked;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Post post = (Post) o;
-        return Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(writer, post.writer) && Objects.equals(title, post.title) && Objects.equals(contents, post.contents) && Objects.equals(createdDate, post.createdDate) && Objects.equals(modifiedDate, post.modifiedDate);
+    public void setLiked(int liked) {
+        this.liked = liked;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, hashTag, writer, title, contents, createdDate, modifiedDate);
+    public int getComments() {
+        return comments;
+    }
+
+    public void setComments(int comments) {
+        this.comments = comments;
     }
 }

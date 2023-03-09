@@ -27,7 +27,7 @@ public class HomeControllerSliceTest {
     @Test
     void homepage(){
         when(postService.getPosts()).thenReturn(Flux.just(
-                new Post( "hashTag1", "user1", "title1", "contents1", LocalDateTime.of(2023, 3, 8, 20, 24, 0))
+                new Post( "hashTag1", "user1",  "contents1")
         ));
 
         client.get().uri("/").exchange()
