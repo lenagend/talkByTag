@@ -20,7 +20,7 @@ public class Post {
     private String contents;
     private LocalDateTime createdDate = LocalDateTime.now();
     private int liked = 0;
-    private List<Comment> comments;
+    private int commentCnt = 0;
 
     public Post() {
     }
@@ -87,16 +87,11 @@ public class Post {
         this.liked = liked;
     }
 
-    public List<Comment> getComments() {
-        return comments;
+    public int getCommentCnt() {
+        return commentCnt;
     }
 
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
+    public void setCommentCnt(int commentCnt) {
+        this.commentCnt = commentCnt;
     }
-
-    public int getCommentCount(){
-        return this.comments.size();
-    }
-
 }
