@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 public class Post {
@@ -19,12 +20,19 @@ public class Post {
     private String contents;
     private LocalDateTime createdDate = LocalDateTime.now();
     private int liked = 0;
-    private int comments = 0;
+    private List<Comment> comments;
 
     public Post() {
     }
 
-    public Post(String hashTag, String writer,  String contents) {
+    public Post(String id, String hashTag, String writer, String contents) {
+        this.id = id;
+        this.hashTag = hashTag;
+        this.writer = writer;
+        this.contents = contents;
+    }
+
+    public Post(String hashTag, String writer, String contents) {
         this.hashTag = hashTag;
         this.writer = writer;
         this.contents = contents;
@@ -79,37 +87,16 @@ public class Post {
         this.liked = liked;
     }
 
-    public int getComments() {
+    public List<Comment> getComments() {
         return comments;
     }
 
-    public void setComments(int comments) {
+    public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Post post = (Post) o;
-        return liked == post.liked && comments == post.comments && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(writer, post.writer) && Objects.equals(contents, post.contents) && Objects.equals(createdDate, post.createdDate);
+    public int getCommentCount(){
+        return this.comments.size();
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, hashTag, writer, contents, createdDate, liked, comments);
-    }
-
-    @Override
-    public String toString() {
-        return "Post{" +
-                "id='" + id + '\'' +
-                ", hashTag='" + hashTag + '\'' +
-                ", writer='" + writer + '\'' +
-                ", contents='" + contents + '\'' +
-                ", createdDate=" + createdDate +
-                ", liked=" + liked +
-                ", comments=" + comments +
-                '}';
-    }
 }

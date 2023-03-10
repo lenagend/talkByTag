@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Demo</title>
+</head>
+<body>
+<h2>add Post</h2>
+<form method="post" th:action="@{'/submit'}">
+    <textarea name="contents"></textarea>
+    <input type="hidden" name="hashTag" value="FreeTalk"/>
+    <input type="submit" value="포스팅"/>
+</form>
+<table>
+    <thead>
+    <tr>
+        <th>name</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="post : ${posts}">
+        <td><span th:text="${post.writer}"></span></td>
+        <td th:text="${post.contents}"></td>
+        <td>
+            <form th:method="delete" th:action="@{'/delete/' + ${post.id}}">
+                <input type="submit" value="Delete">
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

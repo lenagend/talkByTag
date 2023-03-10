@@ -10,7 +10,7 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PostTest {
+public class PostUnitTest {
     @Test
     void postBasicsShouldWork(){
         Post samplePost = new Post( "hashTag1", "user1",  "contents1");
@@ -19,7 +19,6 @@ public class PostTest {
         assertThat(samplePost.getWriter()).isEqualTo("user1");
         assertThat(samplePost.getContents()).isEqualTo("contents1");
         assertThat(samplePost.getCreatedDate()).isNotNull();
-
 
     }
 }
