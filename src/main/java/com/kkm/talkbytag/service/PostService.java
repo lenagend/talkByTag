@@ -24,6 +24,8 @@ public class PostService {
 
     public Flux<Post> getPosts(){return this.postRepository.findAll();}
 
+    public Flux<Post> getNewestPosts(){return this.postRepository.findAllByOrderByCreatedDateDesc();}
+
     public Mono<Post> savePost(Post post){return this.postRepository.save(post);}
 
     public Mono<Void> deletePostById(String id){return this.postRepository.deleteById(id);}

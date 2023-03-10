@@ -18,9 +18,9 @@ public class HomeController {
 
     @GetMapping
     Mono<Rendering> home(){
-        return Mono.just(Rendering.view("noCssHome.html")
+        return Mono.just(Rendering.view("home.html")
                 .modelAttribute("posts",
-                        this.postService.getPosts().doOnNext(System.out::println))
+                        this.postService.getNewestPosts().doOnNext(System.out::println))
                 .build());
 
     }
