@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 
@@ -26,9 +28,15 @@ public class HomeControllerSliceTest {
 
     @Test
     void homepage(){
-        when(postService.getPosts()).thenReturn(Flux.just(
-                new Post( "freeTalk", "user1",  "contents1")
+        when(postService.getNewestPosts(PageRequest.of(0,5, Sort.by("createdDate")))).thenReturn(Flux.just(
+          new Post( "freeTalk1", "user1",  "contents1"),
+          new Post( "freeTalk2", "user1",  "contents1"),
+          new Post( "freeTalk3", "user1",  "contents1"),
+          new Post( "freeTalk4", "user1",  "contents1"),
+          new Post( "freeTalk5", "user1",  "contents1")
         ));
+
+
 
         client.get().uri("/").exchange()
                 .expectStatus().isOk()

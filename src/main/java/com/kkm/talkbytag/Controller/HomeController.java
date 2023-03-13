@@ -2,10 +2,14 @@ package com.kkm.talkbytag.Controller;
 
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.service.PostService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
+
+import java.awt.print.Pageable;
 
 @Controller
 public class HomeController {
@@ -20,7 +24,8 @@ public class HomeController {
     Mono<Rendering> home(){
         return Mono.just(Rendering.view("home.html")
                 .modelAttribute("posts",
-                        this.postService.getNewestPosts().doOnNext(System.out::println))
+                        this.postService.getNewestPosts(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC,"createdDate")))
+                                .doOnNext(System.out::println))
                 .build());
 
     }
