@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -53,18 +54,6 @@ public class PostServiceSliceTest {
                     return true;
                 }).verifyComplete();
     }
-
-//    @Test
-//    void getPostAndCommentTest(){
-//        postService.getPosts()
-//                .as(StepVerifier::create)
-//                .expectNextMatches(post -> {
-//                    assertThat(post.getHashTag()).isEqualTo("lakers");
-//
-//                    return true;
-//                }).verifyComplete();
-//    }
-
 
 
 }

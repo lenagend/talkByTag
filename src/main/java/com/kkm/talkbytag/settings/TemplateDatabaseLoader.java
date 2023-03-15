@@ -14,8 +14,10 @@ public class TemplateDatabaseLoader {
     @Bean
     CommandLineRunner initialize(MongoOperations mongo) {
         return args -> {
-            mongo.save(new Post( "post1","freeTalk", "user1",  "contents1"));
-            mongo.save(new Comment( "post1", "contents1",  "testuser1"));
+            for (int i = 0; i < 100; i++){
+                mongo.save(new Post( "freeTalk", "user1",  "contents1"));
+
+            }
         };
     }
 }
