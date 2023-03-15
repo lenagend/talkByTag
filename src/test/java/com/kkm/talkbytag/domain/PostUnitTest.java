@@ -18,6 +18,8 @@ public class PostUnitTest {
         assertThat(samplePost.getHashTag()).isEqualTo("hashTag1");
         assertThat(samplePost.getWriter()).isEqualTo("user1");
         assertThat(samplePost.getContents()).isEqualTo("contents1");
+        assertThat(samplePost.getLiked()).isEqualTo(0);
+        assertThat(samplePost.getComments()).isEqualTo(0);
         assertThat(samplePost.getCreatedDate()).isNotNull();
 
     }

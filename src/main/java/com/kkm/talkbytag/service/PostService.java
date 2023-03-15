@@ -25,7 +25,7 @@ public class PostService {
 
     public Flux<Post> getPosts(){return this.postRepository.findAll();}
 
-    public Flux<Post> getNewestPosts(Pageable pageable){return this.postRepository.findAllBy(pageable);}
+    public Flux<Post> getPosts(Pageable pageable){return this.postRepository.findAllBy(pageable);}
 
     public Mono<Post> savePost(Post post){return this.postRepository.save(post);}
 
