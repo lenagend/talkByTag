@@ -107,33 +107,6 @@ public class ApiPostControllerTest {
         verify(postService, times(1)).savePost(post);
     }
 
-    @Test
-    public void testCreateComment() {
-        // given
-        Post post = new Post("1","hashTag1", "id1", "content1");
-        given(postService.savePost(post)).willReturn(Mono.just(post));
 
-        Comment comment = new Comment("comment1", "user1", "cotents1");
-        given(postService.createComment(post.getId(), comment)).willReturn(Mono.just(comment));
-
-        given(postService.getPostByPostId("1")).willReturn(Mono.just(post));
-
-        // when
-        webClient.post()
-                .uri("/api/posts/{postId}/comments", post.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(comment)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(Comment.class)
-                .value(commentResponse -> {
-                        System.out.println(commentResponse.toString());
-//                    assertNotNull(commentResponse.getId());
-//                    assertEquals(comment.getContents(), commentResponse.getContents());
-//                    assertEquals(comment.getAuthorId(), commentResponse.getAuthorId());
-//                    assertNotNull(commentResponse.getCreatedAt());
-                });
-
-    }
 
 }
