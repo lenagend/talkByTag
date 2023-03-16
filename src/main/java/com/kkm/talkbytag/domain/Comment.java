@@ -92,4 +92,19 @@ public class Comment {
     public void setPublished(boolean published) {
         this.published = published;
     }
+
+    @Override
+    public String
+    toString() {
+        return "Comment{" +
+                "id='" + id + '\'' +
+                ", authorId='" + authorId + '\'' +
+                ", contents='" + contents + '\'' +
+                ", createdAt=" + createdAt +
+                ", modifiedAt=" + modifiedAt +
+                ", liked=" + liked +
+                ", viewCount=" + viewCount +
+                ", published=" + published +
+                '}';
+    }
 }
