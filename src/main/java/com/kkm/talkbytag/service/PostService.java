@@ -22,10 +22,7 @@ public class PostService {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
     }
-
-    public Flux<Post> getPosts(){return this.postRepository.findAll();}
-
-    public Flux<Post> getPosts(Pageable pageable){return this.postRepository.findAllBy(pageable);}
+    public Flux<Post> getPosts(){return this.postRepository.findAllByOrderByCreatedAtDesc();}
 
     public Mono<Post> savePost(Post post){return this.postRepository.save(post);}
 

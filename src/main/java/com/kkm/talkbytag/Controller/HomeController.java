@@ -3,7 +3,6 @@ package com.kkm.talkbytag.Controller;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.service.PostService;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +19,10 @@ public class HomeController {
     }
 
     @GetMapping
-    Mono<Rendering> home(Pageable pageable){
+    Mono<Rendering> home(){
         return Mono.just(Rendering.view("home.html")
                 .modelAttribute("posts",
-                        this.postService.getPosts(pageable)
+                        this.postService.getPosts()
                                 .doOnNext(System.out::println))
                 .build());
 
@@ -31,7 +30,7 @@ public class HomeController {
 
     @PostMapping("/submit")
     Mono<String> submit(@ModelAttribute Post post){
-        post.setWriter("testUser");
+        post.setAuthorId("testUser");
         return this.postService.savePost(post).thenReturn("redirect:/");
     }
 

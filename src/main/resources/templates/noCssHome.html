@@ -20,7 +20,7 @@
     </thead>
     <tbody>
     <tr th:each="post : ${posts}">
-        <td><span th:text="${post.writer}"></span></td>
+        <td><span th:text="${post.authorId}"></span></td>
         <td th:text="${post.contents}"></td>
         <td>
             <form th:method="delete" th:action="@{'/delete/' + ${post.id}}">

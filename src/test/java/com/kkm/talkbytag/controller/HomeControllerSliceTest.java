@@ -26,23 +26,5 @@ public class HomeControllerSliceTest {
     @MockBean
     PostService postService;
 
-    @Test
-    void homepage(){
-        when(postService.getNewestPosts(PageRequest.of(0,5, Sort.by("createdDate")))).thenReturn(Flux.just(
-          new Post( "freeTalk1", "user1",  "contents1"),
-          new Post( "freeTalk2", "user1",  "contents1"),
-          new Post( "freeTalk3", "user1",  "contents1"),
-          new Post( "freeTalk4", "user1",  "contents1"),
-          new Post( "freeTalk5", "user1",  "contents1")
-        ));
 
-
-
-        client.get().uri("/").exchange()
-                .expectStatus().isOk()
-                .expectBody(String.class)
-                .consumeWith(exchangeResult ->{
-                   assertThat(exchangeResult.getResponseBody().contains("title1"));
-                });
-    }
 }

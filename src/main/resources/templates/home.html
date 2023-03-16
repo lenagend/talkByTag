@@ -461,9 +461,9 @@ Header END -->
                                 <div>
                                     <div class="nav nav-divider">
                                         <h6 class="nav-item card-title mb-0"> <a href="#!" th:text="${post.hashTag}"></a></h6>
-                                        <span class="nav-item small" th:text="${#temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}"></span>
+                                        <span class="nav-item small" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
                                     </div>
-                                    <p class="mb-0 small" th:text="${post.writer}"></p>
+                                    <p class="mb-0 small" th:text="${post.authorId}"></p>
                                 </div>
                             </div>
                             <!-- Card feed action dropdown START -->
@@ -483,10 +483,10 @@ Header END -->
                         <!-- Feed react START -->
                         <ul class="nav nav-stack py-3 small">
                             <li class="nav-item">
-                                <a class="nav-link active" href="#!" data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-custom-class="tooltip-text-start" data-bs-title="Frances Guerrero<br> Lori Stevens<br> Billy Vasquez<br> Judy Nguyen<br> Larry Lawson<br> Amanda Reed<br> Louis Crawford"> <i class="bi bi-hand-thumbs-up-fill pe-1"></i>Liked (<span th:text="${post.liked}"></span>)</a>
+                                <a class="nav-link active" href="#!" data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-custom-class="tooltip-text-start" data-bs-title="Frances Guerrero<br> Lori Stevens<br> Billy Vasquez<br> Judy Nguyen<br> Larry Lawson<br> Amanda Reed<br> Louis Crawford"> <i class="bi bi-hand-thumbs-up-fill pe-1"></i>Liked (<span th:text="${post.viewCount}"></span>)</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#!"> <i class="bi bi-chat-fill pe-1"></i>Comments (<span th:text="${post.comments}"></span>)</a>
+                                <a class="nav-link" href="#!"> <i class="bi bi-chat-fill pe-1"></i>Comments (<span>10</span>)</a>
                             </li>
                             <!-- Card share action START -->
                             <li class="nav-item dropdown ms-sm-auto">
