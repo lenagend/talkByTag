@@ -1,6 +1,7 @@
 package com.kkm.talkbytag.controller;
 
 import com.kkm.talkbytag.Web.ApiPostController;
+import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.service.PostService;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -103,4 +106,45 @@ public class ApiPostControllerTest {
         verify(postService, times(1)).getPostByPostId("1");
         verify(postService, times(1)).savePost(post);
     }
+
+    @Test
+    public void testCreateComment() {
+        // given
+        Post post = new Post();
+        post.setContents("This is a test post.");
+        post.setAuthorId("test_author");
+
+        Comment comment = new Comment();
+        comment.setContents("This is a test comment.");
+        comment.setAuthorId("test_comment_author");
+
+        postService.savePost(post).block();
+
+        // when
+        webClient.post()
+                .uri("/api/posts/{postId}/comments", post.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(comment)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Comment.class)
+                .value(commentResponse -> {
+                    assertNotNull(commentResponse.getId());
+                    assertEquals(comment.getContents(), commentResponse.getContents());
+                    assertEquals(comment.getAuthorId(), commentResponse.getAuthorId());
+                    assertNotNull(commentResponse.getCreatedAt());
+                });
+
+        // then
+        Post savedPost = postService.getPostByPostId(post.getId()).block();
+        assertNotNull(savedPost);
+        List<Comment> comments = savedPost.getComments();
+        assertEquals(1, comments.size());
+        Comment savedComment = comments.get(0);
+        assertNotNull(savedComment.getId());
+        assertEquals(comment.getContents(), savedComment.getContents());
+        assertEquals(comment.getAuthorId(), savedComment.getAuthorId());
+        assertNotNull(savedComment.getCreatedAt());
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.kkm.talkbytag.Web;
 
+import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.service.PostService;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +42,11 @@ public class ApiPostController {
                     p.setModifiedAt(LocalDateTime.now());
                     return postService.savePost(p);
                 });
+    }
+
+    @PostMapping("/api/posts/{postId}/comments")
+    public Mono<Comment> createComment(@PathVariable String postId, @RequestBody Comment comment) {
+        return postService.createComment(postId, comment);
     }
 
 }

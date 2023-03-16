@@ -3,6 +3,8 @@ package com.kkm.talkbytag.domain;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Post {
@@ -15,6 +17,7 @@ public class Post {
     private int liked = 0;
     private int viewCount = 0;
     private boolean published = true;
+    private List<Comment> comments = new ArrayList<>();
 
     public Post() {
     }
@@ -105,21 +108,30 @@ public class Post {
         this.modifiedAt = modifiedAt;
     }
 
+    public List<Comment> getComments() {
+        return comments != null ? comments : new ArrayList<>();
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Post post = (Post) o;
-        return liked == post.liked && viewCount == post.viewCount && published == post.published && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(authorId, post.authorId) && Objects.equals(contents, post.contents) && Objects.equals(createdAt, post.createdAt) && Objects.equals(modifiedAt, post.modifiedAt);
+        return liked == post.liked && viewCount == post.viewCount && published == post.published && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(authorId, post.authorId) && Objects.equals(contents, post.contents) && Objects.equals(createdAt, post.createdAt) && Objects.equals(modifiedAt, post.modifiedAt) && Objects.equals(comments, post.comments);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, hashTag, authorId, contents, createdAt, modifiedAt, liked, viewCount, published);
+        return Objects.hash(id, hashTag, authorId, contents, createdAt, modifiedAt, liked, viewCount, published, comments);
     }
 
     @Override
-    public String toString() {
+    public String
+    toString() {
         return "Post{" +
                 "id='" + id + '\'' +
                 ", hashTag='" + hashTag + '\'' +
@@ -130,6 +142,7 @@ public class Post {
                 ", liked=" + liked +
                 ", viewCount=" + viewCount +
                 ", published=" + published +
+                ", comments=" + comments +
                 '}';
     }
 }

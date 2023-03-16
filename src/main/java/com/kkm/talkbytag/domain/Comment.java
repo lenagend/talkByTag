@@ -3,21 +3,30 @@ package com.kkm.talkbytag.domain;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 public class Comment {
     private @Id
     String id;
-    private String postId;
+    private String authorId;
     private String contents;
-    private String writer;
-    private LocalDateTime createdDate = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime modifiedAt;
     private int liked = 0;
+    private int viewCount = 0;
+    private boolean published = true;
 
-    public Comment(String postId, String contents, String writer) {
-        this.postId = postId;
+    public Comment() {
+    }
+
+    public Comment(String id, String authorId, String contents) {
+        this.id = id;
+        this.authorId = authorId;
         this.contents = contents;
-        this.writer = writer;
+    }
+
+    public Comment(String authorId, String contents) {
+        this.authorId = authorId;
+        this.contents = contents;
     }
 
     public String getId() {
@@ -28,12 +37,12 @@ public class Comment {
         this.id = id;
     }
 
-    public String getPostId() {
-        return postId;
+    public String getAuthorId() {
+        return authorId;
     }
 
-    public void setPostId(String postId) {
-        this.postId = postId;
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
     }
 
     public String getContents() {
@@ -44,20 +53,20 @@ public class Comment {
         this.contents = contents;
     }
 
-    public String getWriter() {
-        return writer;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setWriter(String writer) {
-        this.writer = writer;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
+    public LocalDateTime getModifiedAt() {
+        return modifiedAt;
     }
 
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
+    public void setModifiedAt(LocalDateTime modifiedAt) {
+        this.modifiedAt = modifiedAt;
     }
 
     public int getLiked() {
@@ -65,7 +74,22 @@ public class Comment {
     }
 
     public void setLiked(int liked) {
-        this.liked = liked;    }
+        this.liked = liked;
+    }
 
+    public int getViewCount() {
+        return viewCount;
+    }
 
+    public void setViewCount(int viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public boolean isPublished() {
+        return published;
+    }
+
+    public void setPublished(boolean published) {
+        this.published = published;
+    }
 }
