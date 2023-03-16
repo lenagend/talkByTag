@@ -1,9 +1,7 @@
-package com.kkm.talkbytag.Controller;
+package com.kkm.talkbytag.Web;
 
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.service.PostService;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;

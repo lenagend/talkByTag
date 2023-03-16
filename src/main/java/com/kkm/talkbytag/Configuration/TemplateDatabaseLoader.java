@@ -1,13 +1,10 @@
-package com.kkm.talkbytag.settings;
+package com.kkm.talkbytag.Configuration;
 
-import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
 
 @Component
 public class TemplateDatabaseLoader {

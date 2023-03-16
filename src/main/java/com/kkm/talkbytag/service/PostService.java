@@ -28,7 +28,5 @@ public class PostService {
 
     public Mono<Void> deletePostById(String id){return this.postRepository.deleteById(id);}
 
-    public Mono<Comment> saveComment(Comment comment){return this.commentRepository.save(comment);}
-
-    public Flux<Comment> getCommentsByPostId(String postId){return  this.commentRepository.findAllByPostId(postId);}
+    public Mono<Post> getPostByPostId(String postId){return this.postRepository.findById(postId);}
 }

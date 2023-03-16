@@ -1,4 +1,4 @@
-package com.kkm.talkbytag.settings;
+package com.kkm.talkbytag.Configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.ReactivePageableHandlerMethodArgumentResolver;

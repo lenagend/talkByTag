@@ -11,8 +11,10 @@ public class Post {
     private String authorId;
     private String contents;
     private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime modifiedAt;
     private int liked = 0;
     private int viewCount = 0;
+    private boolean published = true;
 
     public Post() {
     }
@@ -87,30 +89,47 @@ public class Post {
         this.viewCount = viewCount;
     }
 
+    public boolean isPublished() {
+        return published;
+    }
+
+    public void setPublished(boolean published) {
+        this.published = published;
+    }
+
+    public LocalDateTime getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(LocalDateTime modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Post post = (Post) o;
-        return liked == post.liked && viewCount == post.viewCount && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(authorId, post.authorId) && Objects.equals(contents, post.contents) && Objects.equals(createdAt, post.createdAt);
+        return liked == post.liked && viewCount == post.viewCount && published == post.published && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(authorId, post.authorId) && Objects.equals(contents, post.contents) && Objects.equals(createdAt, post.createdAt) && Objects.equals(modifiedAt, post.modifiedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, hashTag, authorId, contents, createdAt, liked, viewCount);
+        return Objects.hash(id, hashTag, authorId, contents, createdAt, modifiedAt, liked, viewCount, published);
     }
 
     @Override
-    public String
-    toString() {
+    public String toString() {
         return "Post{" +
                 "id='" + id + '\'' +
                 ", hashTag='" + hashTag + '\'' +
                 ", authorId='" + authorId + '\'' +
                 ", contents='" + contents + '\'' +
                 ", createdAt=" + createdAt +
+                ", modifiedAt=" + modifiedAt +
                 ", liked=" + liked +
                 ", viewCount=" + viewCount +
+                ", published=" + published +
                 '}';
     }
 }
