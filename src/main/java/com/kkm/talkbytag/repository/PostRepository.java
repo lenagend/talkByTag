@@ -9,5 +9,4 @@ import reactor.core.publisher.Flux;
 
 public interface PostRepository extends ReactiveCrudRepository<Post, String> {
     Flux<Post> findAllBy(Pageable pageable);
-
 }

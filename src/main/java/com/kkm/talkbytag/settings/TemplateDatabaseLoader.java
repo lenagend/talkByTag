@@ -15,7 +15,7 @@ public class TemplateDatabaseLoader {
     CommandLineRunner initialize(MongoOperations mongo) {
         return args -> {
             for (int i = 0; i < 100; i++){
-                mongo.save(new Post( "freeTalk", "user1",  "contents1"));
+                mongo.save(new Post( "freeTalk", "user1",  "contents" + i ));
 
             }
         };
