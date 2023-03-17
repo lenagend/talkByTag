@@ -116,6 +116,15 @@ public class Post {
         this.comments = comments;
     }
 
+    public Comment getCommentById(String commentId) {
+        for (Comment comment : this.comments) {
+            if (comment.getId().equals(commentId)) {
+                return comment;
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

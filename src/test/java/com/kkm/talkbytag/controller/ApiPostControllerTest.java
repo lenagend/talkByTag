@@ -4,6 +4,7 @@ import com.kkm.talkbytag.Web.ApiPostController;
 import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.service.PostService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(SpringExtension.class)
@@ -37,6 +37,16 @@ public class ApiPostControllerTest {
 
     @MockBean
     private PostService postService;
+
+    private Comment comment;
+    private String postId;
+
+    @BeforeEach
+    public void setUp() {
+        postId = "1";
+        comment = new Comment("1", postId, "Sample comment");
+        when(postService.createComment(eq(postId), any(Comment.class))).thenReturn(Mono.just(comment));
+    }
 
     @Test
     void testGetPosts() {
@@ -107,6 +117,22 @@ public class ApiPostControllerTest {
         verify(postService, times(1)).savePost(post);
     }
 
+    @Test
+    public void testCreateComment() {
+        Comment commentToCreate = new Comment(null, postId, "Sample comment");
 
+        webClient.post()
+                .uri("/api/posts/{postId}/comments", postId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(commentToCreate)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody(Comment.class)
+                .consumeWith(response ->{
+                    Comment responseBody = response.getResponseBody();
+                    assertThat(responseBody.getContents()).isEqualTo("Sample comment");
+                });
+    }
 
 }
