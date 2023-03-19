@@ -1,12 +1,22 @@
 package com.kkm.talkbytag.Configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.web.reactive.config.CorsRegistry;
+import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.reactive.resource.PathResourceResolver;
+
+import java.time.Duration;
 
 @Configuration
-public class WebfluxConfig implements WebFluxConfigurer {
+public class WebConfig implements WebFluxConfigurer {
 
+    @Value("${upload.path}")
+    private String uploadPath;
+
+    //Cors설정
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // 모든 경로에 대해 CORS 설정 적용
@@ -17,5 +27,13 @@ public class WebfluxConfig implements WebFluxConfigurer {
                 .maxAge(3600); // 사전 요청(pre-flight request) 캐싱 시간 설정
     }
 
-
+    //리소스 설정
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("file:" + uploadPath + "/")
+                .setCacheControl(CacheControl.maxAge(Duration.ofMillis(3600)))
+                .resourceChain(true)
+                .addResolver(new PathResourceResolver());
+    }
 }
