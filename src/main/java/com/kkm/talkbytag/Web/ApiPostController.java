@@ -1,5 +1,7 @@
 package com.kkm.talkbytag.Web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.dto.ImageUploadResponse;
@@ -19,12 +21,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 public class ApiPostController {
 
     private final PostService postService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     @Value("${upload.path}")
     private String uploadPath;
@@ -41,8 +47,23 @@ public class ApiPostController {
                 .take(limit);
     }
 
+    @GetMapping("/api/posts/read/{id}")
+    public Mono<Post> getPostById(@PathVariable String id){
+        return postService.getPostByPostId(id);
+    }
+
+    @GetMapping("/api/posts/search")
+    public Flux<Post> searchByHashTag(@RequestParam("hashTag") String hashTag, @RequestParam int offset, @RequestParam int limit){
+        return postService.searchByHashTag(hashTag)
+                .filter(Post::isPublished)
+                .skip(offset)
+                .take(limit);
+    }
+
     @PostMapping("/api/posts")
     public Mono<Post> createPost(@RequestBody Post post){
+
+        post.setAuthorId("testUser");
         return postService.savePost(post);
     }
 
@@ -50,23 +71,47 @@ public class ApiPostController {
     public Mono<Post> updatePost(@PathVariable String postId, @RequestBody Post post){
         return postService.getPostByPostId(postId)
                 .flatMap(p -> {
-                    p.setContents(post.getContents());
-                    p.setAuthorId(post.getAuthorId());
-                    p.setHashTag(post.getHashTag());
-                    p.setPublished(post.isPublished());
+                    Optional.ofNullable(post.getContents()).ifPresent(p::setContents);
+                    Optional.ofNullable(post.getAuthorId()).ifPresent(p::setAuthorId);
+                    Optional.ofNullable(post.getHashTag()).ifPresent(p::setHashTag);
+                    Optional.ofNullable(post.isPublished()).ifPresent(p::setPublished);
+
                     p.setModifiedAt(LocalDateTime.now());
                     return postService.savePost(p);
                 });
     }
 
-    @PostMapping("/api/posts/{postId}/comments")
-    public Mono<Comment> createComment(@PathVariable String postId, @RequestBody Comment comment) {
-        return postService.createComment(postId, comment);
+    @PostMapping("/api/comments")
+    public Mono<Comment> createComment(@RequestBody Comment comment, @RequestParam int offset, @RequestParam int limit) {
+
+        comment.setAuthorId("testUser");
+        return postService.saveComment(comment);
+    }
+
+    @GetMapping("/api/{postId}/comments")
+    public Flux<Comment> getCommentsByPostId(@PathVariable String postId, @RequestParam int offset, @RequestParam int limit){
+        return this.postService.getCommentByPostId(postId)
+                .filter(Comment::isPublished)
+                .skip(offset)
+                .take(limit);
+    }
+
+    @PutMapping("/api/comments/{id}")
+    public Mono<Comment> updateComment(@PathVariable String id, @RequestBody Comment comment){
+        return postService.getCommentById(id)
+                .flatMap(c ->{
+                    Optional.ofNullable(comment.getContents()).ifPresent(c::setContents);
+                    Optional.ofNullable(comment.getAuthorId()).ifPresent(c::setAuthorId);
+                    Optional.ofNullable(comment.isPublished()).ifPresent(c::setPublished);
+
+                    c.setModifiedAt(LocalDateTime.now());
+                    return postService.saveComment(c);
+                });
     }
 
     // 이미지 업로드
     @RequestMapping(value = "/api/posts/upload-image", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseEntity<ImageUploadResponse>> uploadImage(@RequestPart("file") Mono<FilePart> filePartMono) {
+    public Mono<ResponseEntity<?>> uploadImage(@RequestPart("file") Mono<FilePart> filePartMono) {
         return filePartMono
                 .flatMap(filePart -> {
                     String fileName = UUID.randomUUID().toString() + "_" + filePart.filename();
@@ -77,7 +122,14 @@ public class ApiPostController {
                         return Mono.error(e);
                     }
                     return filePart.transferTo(new File(path.toString()))
-                            .thenReturn(ResponseEntity.ok().body(new ImageUploadResponse("/images/" + fileName)));
+                            .thenReturn(new ImageUploadResponse("/images/" + fileName));
+                })
+                .map(response -> {
+                    try {
+                        return ResponseEntity.ok().body(objectMapper.writeValueAsString(response));
+                    } catch (JsonProcessingException e) {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                    }
                 })
                 .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }

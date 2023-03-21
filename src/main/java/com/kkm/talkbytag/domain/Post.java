@@ -17,7 +17,7 @@ public class Post {
     private int liked = 0;
     private int viewCount = 0;
     private boolean published = true;
-    private List<Comment> comments = new ArrayList<>();
+    private int commentCnt = 0;
 
     public Post() {
     }
@@ -108,21 +108,12 @@ public class Post {
         this.modifiedAt = modifiedAt;
     }
 
-    public List<Comment> getComments() {
-        return comments != null ? comments : new ArrayList<>();
+    public int getCommentCnt() {
+        return commentCnt;
     }
 
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public Comment getCommentById(String commentId) {
-        for (Comment comment : this.comments) {
-            if (comment.getId().equals(commentId)) {
-                return comment;
-            }
-        }
-        return null;
+    public void setCommentCnt(int commentCnt) {
+        this.commentCnt = commentCnt;
     }
 
     @Override
@@ -130,12 +121,12 @@ public class Post {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Post post = (Post) o;
-        return liked == post.liked && viewCount == post.viewCount && published == post.published && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(authorId, post.authorId) && Objects.equals(contents, post.contents) && Objects.equals(createdAt, post.createdAt) && Objects.equals(modifiedAt, post.modifiedAt) && Objects.equals(comments, post.comments);
+        return liked == post.liked && viewCount == post.viewCount && published == post.published && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(authorId, post.authorId) && Objects.equals(contents, post.contents) && Objects.equals(createdAt, post.createdAt) && Objects.equals(modifiedAt, post.modifiedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, hashTag, authorId, contents, createdAt, modifiedAt, liked, viewCount, published, comments);
+        return Objects.hash(id, hashTag, authorId, contents, createdAt, modifiedAt, liked, viewCount, published);
     }
 
     @Override
@@ -151,7 +142,6 @@ public class Post {
                 ", liked=" + liked +
                 ", viewCount=" + viewCount +
                 ", published=" + published +
-                ", comments=" + comments +
                 '}';
     }
 }

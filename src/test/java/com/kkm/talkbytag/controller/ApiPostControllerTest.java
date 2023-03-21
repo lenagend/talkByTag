@@ -41,12 +41,6 @@ public class ApiPostControllerTest {
     private Comment comment;
     private String postId;
 
-    @BeforeEach
-    public void setUp() {
-        postId = "1";
-        comment = new Comment("1", postId, "Sample comment");
-        when(postService.createComment(eq(postId), any(Comment.class))).thenReturn(Mono.just(comment));
-    }
 
     @Test
     void testGetPosts() {
@@ -117,22 +111,5 @@ public class ApiPostControllerTest {
         verify(postService, times(1)).savePost(post);
     }
 
-    @Test
-    public void testCreateComment() {
-        Comment commentToCreate = new Comment(null, postId, "Sample comment");
-
-        webClient.post()
-                .uri("/api/posts/{postId}/comments", postId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(commentToCreate)
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                .expectBody(Comment.class)
-                .consumeWith(response ->{
-                    Comment responseBody = response.getResponseBody();
-                    assertThat(responseBody.getContents()).isEqualTo("Sample comment");
-                });
-    }
 
 }

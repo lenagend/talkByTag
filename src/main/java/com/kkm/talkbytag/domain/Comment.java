@@ -6,25 +6,22 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Comment {
+    @Id
     private String id;
+    private String postId;
     private String authorId;
     private String contents;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime modifiedAt;
     private int liked = 0;
-    private int viewCount = 0;
     private boolean published = true;
 
     public Comment() {
     }
 
-    public Comment(String id, String authorId, String contents) {
+    public Comment(String id, String postId, String authorId, String contents) {
         this.id = id;
-        this.authorId = authorId;
-        this.contents = contents;
-    }
-
-    public Comment( String authorId, String contents) {
+        this.postId = postId;
         this.authorId = authorId;
         this.contents = contents;
     }
@@ -37,6 +34,13 @@ public class Comment {
         this.id = id;
     }
 
+    public String getPostId() {
+        return postId;
+    }
+
+    public void setPostId(String postId) {
+        this.postId = postId;
+    }
 
     public String getAuthorId() {
         return authorId;
@@ -76,14 +80,6 @@ public class Comment {
 
     public void setLiked(int liked) {
         this.liked = liked;
-    }
-
-    public int getViewCount() {
-        return viewCount;
-    }
-
-    public void setViewCount(int viewCount) {
-        this.viewCount = viewCount;
     }
 
     public boolean isPublished() {

@@ -1,7 +1,7 @@
 package com.kkm.talkbytag.service;
 
-import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
+import com.kkm.talkbytag.repository.CommentRepository;
 import com.kkm.talkbytag.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +24,9 @@ public class PostServiceSliceTest {
     @MockBean
     PostRepository postRepository;
 
+    @MockBean
+    CommentRepository commentRepository;
+
     @BeforeEach
     void setup() {
         Post samplePost = new Post("lakers", "km", "content1");
@@ -31,7 +34,7 @@ public class PostServiceSliceTest {
         when(postRepository.save(any(Post.class))).thenReturn(Mono.just(samplePost));
         when(postRepository.findAll()).thenReturn(Flux.just(samplePost));
 
-        postService = new PostService(postRepository);
+        postService = new PostService(postRepository, commentRepository);
     }
 
     @Test
