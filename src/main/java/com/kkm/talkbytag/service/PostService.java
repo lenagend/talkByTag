@@ -37,4 +37,6 @@ public class PostService {
 
     public Mono<Comment> saveComment(Comment comment){return this.commentRepository.save(comment);}
 
+    public Mono<Long> getCommentCount(String postId, boolean published){return this.commentRepository.countByPostIdAndPublished(postId, published);}
+
 }

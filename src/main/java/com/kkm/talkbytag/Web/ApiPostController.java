@@ -82,7 +82,7 @@ public class ApiPostController {
     }
 
     @PostMapping("/api/comments")
-    public Mono<Comment> createComment(@RequestBody Comment comment, @RequestParam int offset, @RequestParam int limit) {
+    public Mono<Comment> createComment(@RequestBody Comment comment) {
 
         comment.setAuthorId("testUser");
         return postService.saveComment(comment);
@@ -109,6 +109,11 @@ public class ApiPostController {
                 });
     }
 
+    @GetMapping("/api/comments/count/{postId}")
+    public Mono<Long> getCommentCount(@PathVariable String postId){
+        return postService.getCommentCount(postId, true);
+    }
+
     // 이미지 업로드
     @RequestMapping(value = "/api/posts/upload-image", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseEntity<?>> uploadImage(@RequestPart("file") Mono<FilePart> filePartMono) {
@@ -133,4 +138,5 @@ public class ApiPostController {
                 })
                 .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
+
 }
