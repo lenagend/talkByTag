@@ -22,17 +22,17 @@ public class Post {
     public Post() {
     }
 
-    public Post(String id, String hashTag, String authorId, String contents) {
+    public Post(String id, String hashTag, String authorId, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, int liked, int viewCount, boolean published, int commentCnt) {
         this.id = id;
         this.hashTag = hashTag;
         this.authorId = authorId;
         this.contents = contents;
-    }
-
-    public Post(String hashTag, String authorId, String contents) {
-        this.hashTag = hashTag;
-        this.authorId = authorId;
-        this.contents = contents;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
+        this.liked = liked;
+        this.viewCount = viewCount;
+        this.published = published;
+        this.commentCnt = commentCnt;
     }
 
     public String getId() {

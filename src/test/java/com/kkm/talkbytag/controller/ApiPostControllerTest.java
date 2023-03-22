@@ -44,9 +44,9 @@ public class ApiPostControllerTest {
 
     @Test
     void testGetPosts() {
-        Post post1 = new Post("hashTag1", "id1", "content1");
-        Post post2 = new Post("hashTag2", "id2", "content2");
-        Post post3 = new Post("hashTag3", "id3", "content3");
+        Post post1 = new Post();
+        Post post2 = new Post();
+        Post post3 = new Post();
         post2.setPublished(false);
         List<Post> posts = Arrays.asList(post3, post2, post1);
         int offset = 0;
@@ -72,7 +72,7 @@ public class ApiPostControllerTest {
 
     @Test
     void testCreatePost() {
-        Post post = new Post("hashTag1", "id1", "content1");
+        Post post = new Post();
         given(postService.savePost(post)).willReturn(Mono.just(post));
 
         webClient.post()
@@ -89,11 +89,11 @@ public class ApiPostControllerTest {
 
     @Test
     void testUpdatePost() {
-        Post post = new Post("1","hashTag1", "id1", "content1");
+        Post post = new Post();
         given(postService.getPostByPostId("1")).willReturn(Mono.just(post));
         given(postService.savePost(post)).willReturn(Mono.just(post));
 
-        Post updatedPost = new Post("1", "hashTag1", "hashTag1",  "Author2");
+        Post updatedPost = new Post();
         webClient.put()
                 .uri("/api/posts/1")
                 .body(Mono.just(updatedPost), Post.class)

@@ -19,7 +19,8 @@ public class MongoDBSliceTest {
 
     @Test
     void postRepositorySavesPosts(){
-        Post samplePost = new Post( "hashTag1", "user1",  "contents1");
+        Post samplePost = new Post();
+        samplePost.setHashTag("hashTag1");
 
         postRepository.save(samplePost)
                 .as(StepVerifier::create)

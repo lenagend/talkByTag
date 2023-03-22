@@ -29,6 +29,7 @@ public class ApiPostController {
 
     private final PostService postService;
 
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -89,11 +90,9 @@ public class ApiPostController {
     }
 
     @GetMapping("/api/{postId}/comments")
-    public Flux<Comment> getCommentsByPostId(@PathVariable String postId, @RequestParam int offset, @RequestParam int limit){
-        return this.postService.getCommentByPostId(postId)
-                .filter(Comment::isPublished)
-                .skip(offset)
-                .take(limit);
+    public Flux<Comment> getCommentsByPostId(@PathVariable String postId){
+        return this.postService.getCommentsByPostId(postId)
+                .filter(Comment::isPublished);
     }
 
     @PutMapping("/api/comments/{id}")
@@ -113,6 +112,13 @@ public class ApiPostController {
     public Mono<Long> getCommentCount(@PathVariable String postId){
         return postService.getCommentCount(postId, true);
     }
+
+    @GetMapping("/api/{upperCommentId}/replies")
+    public Flux<Comment> getCommentsByUpperCommentId(@PathVariable String upperCommentId){
+        return this.postService.getCommentsByUpperCommentId(upperCommentId)
+                .filter(Comment::isPublished);
+    }
+
 
     // 이미지 업로드
     @RequestMapping(value = "/api/posts/upload-image", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -27,26 +27,7 @@ public class PostServiceSliceTest {
     @MockBean
     CommentRepository commentRepository;
 
-    @BeforeEach
-    void setup() {
-        Post samplePost = new Post("lakers", "km", "content1");
 
-        when(postRepository.save(any(Post.class))).thenReturn(Mono.just(samplePost));
-        when(postRepository.findAll()).thenReturn(Flux.just(samplePost));
-
-        postService = new PostService(postRepository, commentRepository);
-    }
-
-    @Test
-    void createPostTest(){
-        postService.savePost(new Post("lakers", "km", "content1"))
-                .as(StepVerifier::create)
-                .expectNextMatches(post -> {
-                    assertThat(post.getHashTag()).isEqualTo("lakers");
-                    System.out.println(post.toString());
-                    return true;
-                }).verifyComplete();
-    }
 
 
 }

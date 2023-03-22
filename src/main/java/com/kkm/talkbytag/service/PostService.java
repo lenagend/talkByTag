@@ -16,7 +16,6 @@ public class PostService {
     private final CommentRepository commentRepository;
 
     public PostService(PostRepository postRepository, CommentRepository commentRepository) {
-
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
     }
@@ -33,10 +32,12 @@ public class PostService {
 
     public Mono<Comment> getCommentById(String id){return this.commentRepository.findById(id);}
 
-    public Flux<Comment> getCommentByPostId(String postId){return this.commentRepository.findByPostIdOrderByCreatedAtDesc(postId);}
+    public Flux<Comment> getCommentsByPostId(String postId){return this.commentRepository.findByPostIdOrderByCreatedAtDesc(postId);}
 
     public Mono<Comment> saveComment(Comment comment){return this.commentRepository.save(comment);}
 
     public Mono<Long> getCommentCount(String postId, boolean published){return this.commentRepository.countByPostIdAndPublished(postId, published);}
+
+    public Flux<Comment> getCommentsByUpperCommentId(String upperCommentId){return this.commentRepository.findByUpperCommentIdOrderByCreatedAtDesc(upperCommentId);}
 
 }
