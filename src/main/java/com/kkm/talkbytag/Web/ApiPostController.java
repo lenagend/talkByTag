@@ -54,11 +54,19 @@ public class ApiPostController {
     }
 
     @GetMapping("/api/posts/search")
-    public Flux<Post> searchByHashTag(@RequestParam("hashTag") String hashTag, @RequestParam int offset, @RequestParam int limit){
-        return postService.searchByHashTag(hashTag)
-                .filter(Post::isPublished)
-                .skip(offset)
-                .take(limit);
+    public Flux<Post> searchByHashTag(@RequestParam("q") String q, @RequestParam int offset, @RequestParam int limit){
+        boolean startsWithAtSign = q != null && !q.isEmpty() && q.charAt(0) == '@';
+        if(startsWithAtSign){
+            return postService.searchByHashTag(q)
+                    .filter(Post::isPublished)
+                    .skip(offset)
+                    .take(limit);
+        }else{
+            return postService.searchByContents(q)
+                    .filter(Post::isPublished)
+                    .skip(offset)
+                    .take(limit);
+        }
     }
 
     @PostMapping("/api/posts")

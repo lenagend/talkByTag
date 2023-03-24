@@ -10,5 +10,6 @@ import reactor.core.publisher.Flux;
 
 public interface PostRepository extends ReactiveCrudRepository<Post, String> {
     Flux<Post> findAllByOrderByCreatedAtDesc();
-    Flux<Post> findByHashTagContaining(String hashTag);
+    Flux<Post> findByHashTagContainingOrderByCreatedAtDesc(String hashTag);
+    Flux<Post> findByContentsContainingOrderByCreatedAtDesc(String contents);
 }

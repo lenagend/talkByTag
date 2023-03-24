@@ -26,9 +26,9 @@ public class PostService {
 
     public Mono<Post> getPostByPostId(String postId){return this.postRepository.findById(postId);}
 
-    public Flux<Post> searchByHashTag(String hashTag){
-        return postRepository.findByHashTagContaining(hashTag);
-    }
+    public Flux<Post> searchByHashTag(String hashTag){return postRepository.findByHashTagContainingOrderByCreatedAtDesc(hashTag);}
+
+    public Flux<Post> searchByContents(String Contents){return postRepository.findByContentsContainingOrderByCreatedAtDesc(Contents);}
 
     public Mono<Comment> getCommentById(String id){return this.commentRepository.findById(id);}
 
