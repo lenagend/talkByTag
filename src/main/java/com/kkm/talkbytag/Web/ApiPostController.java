@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.dto.ImageUploadResponse;
+import com.kkm.talkbytag.service.PostEventProducer;
 import com.kkm.talkbytag.service.PostService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ public class ApiPostController {
 
     private final PostService postService;
 
+    private final PostEventProducer postEventProducer;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -36,8 +38,9 @@ public class ApiPostController {
     @Value("${upload.path}")
     private String uploadPath;
 
-    public ApiPostController(PostService postService) {
+    public ApiPostController(PostService postService, PostEventProducer postEventProducer) {
         this.postService = postService;
+        this.postEventProducer = postEventProducer;
     }
 
     @GetMapping("/api/posts")
@@ -70,10 +73,14 @@ public class ApiPostController {
     }
 
     @PostMapping("/api/posts")
-    public Mono<Post> createPost(@RequestBody Post post){
-
+    public Mono<ResponseEntity<Post>> createPost(@RequestBody Post post){
         post.setAuthorId("testUser");
-        return postService.savePost(post);
+        return postService.savePost(post)
+                .doOnNext(createdPost -> {
+                    postEventProducer.sendPostCreatedEvent(createdPost);
+        })
+                .map(createdPost -> ResponseEntity.status(HttpStatus.CREATED).body(createdPost))
+                .defaultIfEmpty(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
     }
 
     @PutMapping("/api/posts/{postId}")
