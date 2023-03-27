@@ -131,7 +131,7 @@ public class ApiPostController {
     public Mono<ResponseEntity<?>> uploadImage(@RequestPart("file") Mono<FilePart> filePartMono) {
         return filePartMono
                 .flatMap(filePart -> {
-                    String fileName = UUID.randomUUID().toString() + "_" + filePart.filename();
+                    String fileName = UUID.randomUUID().toString();
                     Path path = Paths.get(uploadPath, fileName);
                     try {
                         Files.createDirectories(path.getParent());
