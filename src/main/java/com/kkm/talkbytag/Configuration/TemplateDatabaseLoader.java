@@ -1,14 +1,14 @@
 package com.kkm.talkbytag.Configuration;
 
 import com.kkm.talkbytag.domain.Post;
-import com.kkm.talkbytag.domain.User;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 @Component
 public class TemplateDatabaseLoader {
@@ -19,7 +19,7 @@ public class TemplateDatabaseLoader {
                 mongo.save(new Post("" + i, "@hashTag" + i, "testUser" + i, "testContents" + i, LocalDateTime.now(), LocalDateTime.now(), 0, 0, true, 0));
                 Thread.sleep(10); // 0.1초 지연
             }
-            mongo.save(new User("testId", "testuser1@gmail.com", "password1"));
+            mongo.save(new User("testuser1@gmail.com", "password1", Collections.emptyList()));
         };
     }
 }

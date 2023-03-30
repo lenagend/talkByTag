@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api")
 public class ApiPostController {
 
     private final PostService postService;
@@ -39,7 +40,7 @@ public class ApiPostController {
         this.postService = postService;
     }
 
-    @GetMapping("/api/posts")
+    @GetMapping("/posts")
     public Flux<Post> getPosts(@RequestParam int offset, @RequestParam int limit){
         return postService.getPosts()
                 .filter(Post::isPublished)
@@ -47,12 +48,12 @@ public class ApiPostController {
                 .take(limit);
     }
 
-    @GetMapping("/api/posts/read/{id}")
+    @GetMapping("/posts/read/{id}")
     public Mono<Post> getPostById(@PathVariable String id){
         return postService.getPostByPostId(id);
     }
 
-    @GetMapping("/api/posts/search")
+    @GetMapping("/posts/search")
     public Flux<Post> searchByHashTag(@RequestParam("q") String q, @RequestParam int offset, @RequestParam int limit){
         boolean startsWithAtSign = q != null && !q.isEmpty() && q.charAt(0) == '@';
         if(startsWithAtSign){
@@ -68,13 +69,13 @@ public class ApiPostController {
         }
     }
 
-    @PostMapping("/api/posts")
+    @PostMapping("/posts")
     public Mono<Post> createPost(@RequestBody Post post){
         post.setAuthorId("testUser");
         return postService.savePost(post);
     }
 
-    @PutMapping("/api/posts/{postId}")
+    @PutMapping("/posts/{postId}")
     public Mono<Post> updatePost(@PathVariable String postId, @RequestBody Post post){
         return postService.getPostByPostId(postId)
                 .flatMap(p -> {
@@ -88,20 +89,20 @@ public class ApiPostController {
                 });
     }
 
-    @PostMapping("/api/comments")
+    @PostMapping("/comments")
     public Mono<Comment> createComment(@RequestBody Comment comment) {
 
         comment.setAuthorId("testUser");
         return postService.saveComment(comment);
     }
 
-    @GetMapping("/api/{postId}/comments")
+    @GetMapping("/{postId}/comments")
     public Flux<Comment> getCommentsByPostId(@PathVariable String postId){
         return this.postService.getCommentsByPostId(postId)
                 .filter(Comment::isPublished);
     }
 
-    @PutMapping("/api/comments/{id}")
+    @PutMapping("/comments/{id}")
     public Mono<Comment> updateComment(@PathVariable String id, @RequestBody Comment comment){
         return postService.getCommentById(id)
                 .flatMap(c ->{
@@ -114,12 +115,12 @@ public class ApiPostController {
                 });
     }
 
-    @GetMapping("/api/comments/count/{postId}")
+    @GetMapping("/comments/count/{postId}")
     public Mono<Long> getCommentCount(@PathVariable String postId){
         return postService.getCommentCount(postId, true);
     }
 
-    @GetMapping("/api/{upperCommentId}/replies")
+    @GetMapping("/{upperCommentId}/replies")
     public Flux<Comment> getCommentsByUpperCommentId(@PathVariable String upperCommentId){
         return this.postService.getCommentsByUpperCommentId(upperCommentId)
                 .filter(Comment::isPublished);
@@ -127,7 +128,7 @@ public class ApiPostController {
 
 
     // 이미지 업로드
-    @RequestMapping(value = "/api/posts/upload-image", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/posts/upload-image", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseEntity<?>> uploadImage(@RequestPart("file") Mono<FilePart> filePartMono) {
         return filePartMono
                 .flatMap(filePart -> {
