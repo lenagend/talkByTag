@@ -4,14 +4,20 @@ public class UserInfo {
     private Long id;
     private String nickname;
     private String profileImage;
+    private Long postCount;
+    private Long commentCount;
+    private Long likeCount;
 
     public UserInfo() {
     }
 
-    public UserInfo(Long id, String nickname, String profileImage) {
+    public UserInfo(Long id, String nickname, String profileImage, Long postCount, Long commentCount, Long likeCount) {
         this.id = id;
         this.nickname = nickname;
         this.profileImage = profileImage;
+        this.postCount = postCount;
+        this.commentCount = commentCount;
+        this.likeCount = likeCount;
     }
 
     public Long getId() {
@@ -36,5 +42,30 @@ public class UserInfo {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+
+    public Long getPostCount() {
+        return postCount;
+    }
+
+    public void setPostCount(Long postCount) {
+        this.postCount = postCount;
+    }
+
+    public Long getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(Long commentCount) {
+        this.commentCount = commentCount;
+    }
+
+    public Long getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
     }
 }
