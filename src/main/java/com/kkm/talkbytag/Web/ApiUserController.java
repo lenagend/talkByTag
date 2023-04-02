@@ -5,6 +5,7 @@ import com.kkm.talkbytag.domain.UserInfo;
 import com.kkm.talkbytag.dto.UserRegistrationDto;
 import com.kkm.talkbytag.service.AuthenticationService;
 import com.kkm.talkbytag.service.CustomReactiveUserDetailsService;
+import com.kkm.talkbytag.service.PostService;
 import com.kkm.talkbytag.service.UserInfoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,11 +34,14 @@ public class ApiUserController {
 
     private final UserInfoService userInfoService;
 
-    public ApiUserController(CustomReactiveUserDetailsService customReactiveUserDetailsService, AuthenticationService authenticationService, Validator userRegistrationDtoValidator, UserInfoService userInfoService) {
+    private final PostService postService;
+
+    public ApiUserController(CustomReactiveUserDetailsService customReactiveUserDetailsService, AuthenticationService authenticationService, Validator userRegistrationDtoValidator, UserInfoService userInfoService, PostService postService) {
         this.customReactiveUserDetailsService = customReactiveUserDetailsService;
         this.authenticationService = authenticationService;
         this.userRegistrationDtoValidator = userRegistrationDtoValidator;
         this.userInfoService = userInfoService;
+        this.postService = postService;
     }
 
     @GetMapping("/userInfo")
@@ -47,7 +51,7 @@ public class ApiUserController {
 
         // postRepository를 사용하여 해당 사용자 이름으로 작성된 게시물의 개수를 가져오기 위한 코드
         // 이 부분은 사용자의 실제 데이터베이스 및 리포지토리에 따라 변경됩니다.
-        Mono<Long> postCount = postRepository.countByAuthor(username);
+        Mono<Long> postCount = postService.countByAuthorId(username);
 
         return postCount.map(count -> {
             UserInfo userInfo = new UserInfo();
