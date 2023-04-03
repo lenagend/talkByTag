@@ -17,11 +17,11 @@ import java.util.Date;
 
 @Service
 public class AuthenticationService {
-    private static final String SECRET = "3jKJFq3Zq9c6Y5U6j5YZL2F2R6EgH2vF";
-    private static final Key KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
+    private static final Key KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
 
     public String extractUsername(String token) {
-        Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(SECRET).build().parseClaimsJws(token);
+        Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(KEY).build().parseClaimsJws(token);
         return claims.getBody().getSubject();
     }
 
@@ -34,7 +34,7 @@ public class AuthenticationService {
 
         // Generate token
         return Jwts.builder()
-                .signWith(KEY)
+                .signWith(KEY, SignatureAlgorithm.HS256)
                 .setSubject(username)
                 .setIssuer("talkByTag")
                 .setIssuedAt(new Date())
