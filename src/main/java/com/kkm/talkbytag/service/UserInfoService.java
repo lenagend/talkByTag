@@ -1,5 +1,6 @@
 package com.kkm.talkbytag.service;
 
+import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.domain.UserInfo;
 import com.kkm.talkbytag.repository.UserInfoRepository;
 import org.springframework.stereotype.Service;
@@ -13,4 +14,7 @@ public class UserInfoService {
         this.userInfoRepository = userInfoRepository;
     }
 
+    public Mono<UserInfo> saveUserInfo(UserInfo userInfo){return this.userInfoRepository.save(userInfo);}
+
+    public Mono<UserInfo> findByUsername(String username){return this.userInfoRepository.findByUsername(username);}
 }

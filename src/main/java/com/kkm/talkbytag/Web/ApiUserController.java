@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -44,20 +45,23 @@ public class ApiUserController {
         this.postService = postService;
     }
 
+
     @GetMapping("/userInfo")
     public Mono<ResponseEntity<UserInfo>> getUserInfo(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         String username = authenticationService.extractUsername(token);
 
-        // postRepository를 사용하여 해당 사용자 이름으로 작성된 게시물의 개수를 가져오기 위한 코드
-        // 이 부분은 사용자의 실제 데이터베이스 및 리포지토리에 따라 변경됩니다.
+        Mono<UserInfo> userInfo = userInfoService.findByUsername(username);
         Mono<Long> postCount = postService.countByAuthorId(username);
 
-        return postCount.map(count -> {
-            UserInfo userInfo = new UserInfo();
-            userInfo.setPostCount(count);
-            return new ResponseEntity<>(userInfo, HttpStatus.OK);
-        }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return Mono.zip(userInfo, postCount)
+                .map(tuple -> {
+                    UserInfo ui = tuple.getT1();
+                    Long count = tuple.getT2();
+                    ui.setPostCount(count);
+                    return ResponseEntity.ok(ui);
+                })
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/register")
@@ -76,10 +80,18 @@ public class ApiUserController {
 
             List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
             User newUser = new User(registrationDto.getUsername(), registrationDto.getPassword(), authorities);
+
             return customReactiveUserDetailsService.findByUsername(newUser.getUsername())
                     .flatMap(user -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body("이미 등록된 사용자입니다.")))
                     .switchIfEmpty(customReactiveUserDetailsService.createUser(newUser)
+                            .doOnNext(createdCustomUserDetails -> {
+                                UserInfo tempUserInfo = new UserInfo();
+                                tempUserInfo.setUsername(createdCustomUserDetails.getUsername());
+                                tempUserInfo.setNickname("임시유저" + UUID.randomUUID().toString() + "님");
+                                userInfoService.saveUserInfo(tempUserInfo).subscribe();
+                            })
                             .thenReturn(ResponseEntity.ok().body("가입이 완료되었습니다.")));
+
         });
     }
 

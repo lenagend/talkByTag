@@ -1,31 +1,36 @@
 package com.kkm.talkbytag.domain;
 
+import java.time.LocalDateTime;
+
 public class UserInfo {
-    private Long id;
+    private String username;
     private String nickname;
     private String profileImage;
     private Long postCount;
     private Long commentCount;
     private Long likeCount;
+    private LocalDateTime modifiedAt;
+
 
     public UserInfo() {
     }
 
-    public UserInfo(Long id, String nickname, String profileImage, Long postCount, Long commentCount, Long likeCount) {
-        this.id = id;
+    public UserInfo(String username, String nickname, String profileImage, Long postCount, Long commentCount, Long likeCount, LocalDateTime modifiedAt) {
+        this.username = username;
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.postCount = postCount;
         this.commentCount = commentCount;
         this.likeCount = likeCount;
+        this.modifiedAt = modifiedAt;
     }
 
-    public Long getId() {
-        return id;
+    public String getUsername() {
+        return username;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getNickname() {
@@ -67,5 +72,13 @@ public class UserInfo {
 
     public void setLikeCount(Long likeCount) {
         this.likeCount = likeCount;
+    }
+
+    public LocalDateTime getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(LocalDateTime modifiedAt) {
+        this.modifiedAt = modifiedAt;
     }
 }

@@ -71,7 +71,7 @@ public class ApiPostController {
 
     @PostMapping("/posts")
     public Mono<Post> createPost(@RequestBody Post post){
-        post.setAuthorId("testUser");
+        post.setUsername("testUser");
         return postService.savePost(post);
     }
 
@@ -80,7 +80,7 @@ public class ApiPostController {
         return postService.getPostByPostId(postId)
                 .flatMap(p -> {
                     Optional.ofNullable(post.getContents()).ifPresent(p::setContents);
-                    Optional.ofNullable(post.getAuthorId()).ifPresent(p::setAuthorId);
+                    Optional.ofNullable(post.getUsername()).ifPresent(p::setUsername);
                     Optional.ofNullable(post.getHashTag()).ifPresent(p::setHashTag);
                     Optional.ofNullable(post.isPublished()).ifPresent(p::setPublished);
 

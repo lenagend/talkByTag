@@ -10,7 +10,7 @@ import java.util.Objects;
 public class Post {
     private @Id String id;
     private String hashTag;
-    private String authorId;
+    private String username;
     private String contents;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime modifiedAt;
@@ -22,10 +22,10 @@ public class Post {
     public Post() {
     }
 
-    public Post(String id, String hashTag, String authorId, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, int liked, int viewCount, boolean published, int commentCnt) {
+    public Post(String id, String hashTag, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, int liked, int viewCount, boolean published, int commentCnt) {
         this.id = id;
         this.hashTag = hashTag;
-        this.authorId = authorId;
+        this.username = username;
         this.contents = contents;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
@@ -33,6 +33,14 @@ public class Post {
         this.viewCount = viewCount;
         this.published = published;
         this.commentCnt = commentCnt;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getId() {
@@ -49,14 +57,6 @@ public class Post {
 
     public void setHashTag(String hashTag) {
         this.hashTag = hashTag;
-    }
-
-    public String getAuthorId() {
-        return authorId;
-    }
-
-    public void setAuthorId(String authorId) {
-        this.authorId = authorId;
     }
 
     public String getContents() {
@@ -121,27 +121,27 @@ public class Post {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Post post = (Post) o;
-        return liked == post.liked && viewCount == post.viewCount && published == post.published && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(authorId, post.authorId) && Objects.equals(contents, post.contents) && Objects.equals(createdAt, post.createdAt) && Objects.equals(modifiedAt, post.modifiedAt);
+        return liked == post.liked && viewCount == post.viewCount && published == post.published && commentCnt == post.commentCnt && Objects.equals(id, post.id) && Objects.equals(hashTag, post.hashTag) && Objects.equals(username, post.username) && Objects.equals(contents, post.contents) && Objects.equals(createdAt, post.createdAt) && Objects.equals(modifiedAt, post.modifiedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, hashTag, authorId, contents, createdAt, modifiedAt, liked, viewCount, published);
+        return Objects.hash(id, hashTag, username, contents, createdAt, modifiedAt, liked, viewCount, published, commentCnt);
     }
 
     @Override
-    public String
-    toString() {
+    public String toString() {
         return "Post{" +
                 "id='" + id + '\'' +
                 ", hashTag='" + hashTag + '\'' +
-                ", authorId='" + authorId + '\'' +
+                ", username='" + username + '\'' +
                 ", contents='" + contents + '\'' +
                 ", createdAt=" + createdAt +
                 ", modifiedAt=" + modifiedAt +
                 ", liked=" + liked +
                 ", viewCount=" + viewCount +
                 ", published=" + published +
+                ", commentCnt=" + commentCnt +
                 '}';
     }
 }

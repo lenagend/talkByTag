@@ -13,5 +13,5 @@ public interface PostRepository extends ReactiveCrudRepository<Post, String> {
     Flux<Post> findAllByOrderByCreatedAtDesc();
     Flux<Post> findByHashTagContainingOrderByCreatedAtDesc(String hashTag);
     Flux<Post> findByContentsContainingOrderByCreatedAtDesc(String contents);
-    Mono<Long> countByAuthorId(String username);
+    Mono<Long> countByUsername(String username);
 }
