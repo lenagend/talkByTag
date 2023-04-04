@@ -52,7 +52,8 @@ public class ApiUserController {
         String username = authenticationService.extractUsername(token);
 
         Mono<UserInfo> userInfo = userInfoService.findByUsername(username);
-        Mono<Long> postCount = postService.countByAuthorId(username);
+        Mono<Long> postCount = postService.countByUsername(username)
+                .doOnSuccess(count -> System.out.println("postCount: " + count));
 
         return Mono.zip(userInfo, postCount)
                 .map(tuple -> {

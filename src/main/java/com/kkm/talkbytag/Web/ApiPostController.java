@@ -71,7 +71,6 @@ public class ApiPostController {
 
     @PostMapping("/posts")
     public Mono<Post> createPost(@RequestBody Post post){
-        post.setUsername("testUser");
         return postService.savePost(post);
     }
 

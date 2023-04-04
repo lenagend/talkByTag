@@ -40,5 +40,5 @@ public class PostService {
 
     public Flux<Comment> getCommentsByUpperCommentId(String upperCommentId){return this.commentRepository.findByUpperCommentIdOrderByCreatedAtDesc(upperCommentId);}
 
-    public Mono<Long> countByAuthorId(String username){return this.postRepository.countByUsername(username);}
+    public Mono<Long> countByUsername(String username){return this.postRepository.countByUsername(username);}
 }
