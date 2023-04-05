@@ -1,6 +1,7 @@
 package com.kkm.talkbytag.Configuration;
 
 import com.kkm.talkbytag.domain.Post;
+import com.kkm.talkbytag.domain.UserInfo;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -20,6 +21,8 @@ public class TemplateDatabaseLoader {
                 Thread.sleep(10); // 0.1초 지연
             }
             mongo.save(new User("testuser1@gmail.com", "password1", Collections.emptyList()));
+            mongo.save(new UserInfo("testuser1@gmail.com", "운영자", null, null, null, null, null));
+
         };
     }
 }

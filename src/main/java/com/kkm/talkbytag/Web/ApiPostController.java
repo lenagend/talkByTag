@@ -41,139 +41,90 @@ public class ApiPostController {
     }
 
     @GetMapping("/posts")
-    public ResponseEntity<Flux<Post>> getPosts(@RequestParam int offset, @RequestParam int limit){
-        try {
-            Flux<Post> result = postService.getPosts()
-                    .filter(Post::isPublished)
-                    .skip(offset)
-                    .take(limit);
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public Flux<Post> getPosts(@RequestParam int offset, @RequestParam int limit){
+        return postService.getPosts()
+                .filter(Post::isPublished)
+                .skip(offset)
+                .take(limit);
     }
 
     @GetMapping("/posts/read/{id}")
-    public ResponseEntity<Mono<Post>> getPostById(@PathVariable String id){
-        try {
-            Mono<Post> result = postService.getPostByPostId(id);
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public Mono<Post> getPostById(@PathVariable String id){
+        return postService.getPostByPostId(id);
     }
 
     @GetMapping("/posts/search")
-    public ResponseEntity<Flux<Post>> searchByHashTag(@RequestParam("q") String q, @RequestParam int offset, @RequestParam int limit){
+    public Flux<Post> searchByHashTag(@RequestParam("q") String q, @RequestParam int offset, @RequestParam int limit){
         boolean startsWithAtSign = q != null && !q.isEmpty() && q.charAt(0) == '@';
-        Flux<Post> result;
-        try {
-            if (startsWithAtSign) {
-                result = postService.searchByHashTag(q)
-                        .filter(Post::isPublished)
-                        .skip(offset)
-                        .take(limit);
-            } else {
-                result = postService.searchByContents(q)
-                        .filter(Post::isPublished)
-                        .skip(offset)
-                        .take(limit);
-            }
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        if(startsWithAtSign){
+            return postService.searchByHashTag(q)
+                    .filter(Post::isPublished)
+                    .skip(offset)
+                    .take(limit);
+        }else{
+            return postService.searchByContents(q)
+                    .filter(Post::isPublished)
+                    .skip(offset)
+                    .take(limit);
         }
     }
 
     @PostMapping("/posts")
-    public ResponseEntity<Mono<Post>> createPost(@RequestBody Post post){
-        try {
-            Mono<Post> result = postService.savePost(post);
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public Mono<Post> createPost(@RequestBody Post post){
+        return postService.savePost(post);
     }
 
     @PutMapping("/posts/{postId}")
-    public ResponseEntity<Mono<Post>> updatePost(@PathVariable String postId, @RequestBody Post post){
-        try {
-            Mono<Post> result = postService.getPostByPostId(postId)
-                    .flatMap(p -> {
-                        Optional.ofNullable(post.getContents()).ifPresent(p::setContents);
-                        Optional.ofNullable(post.getUsername()).ifPresent(p::setUsername);
-                        Optional.ofNullable(post.getHashTag()).ifPresent(p::setHashTag);
-                        Optional.ofNullable(post.isPublished()).ifPresent(p::setPublished);
+    public Mono<Post> updatePost(@PathVariable String postId, @RequestBody Post post){
+        return postService.getPostByPostId(postId)
+                .flatMap(p -> {
+                    Optional.ofNullable(post.getContents()).ifPresent(p::setContents);
+                    Optional.ofNullable(post.getUsername()).ifPresent(p::setUsername);
+                    Optional.ofNullable(post.getHashTag()).ifPresent(p::setHashTag);
+                    Optional.ofNullable(post.isPublished()).ifPresent(p::setPublished);
 
-                        p.setModifiedAt(LocalDateTime.now());
-                        return postService.savePost(p);
-                    });
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+                    p.setModifiedAt(LocalDateTime.now());
+                    return postService.savePost(p);
+                });
     }
 
     @PostMapping("/comments")
-    public ResponseEntity<Mono<Comment>> createComment(@RequestBody Comment comment) {
-        try {
-            comment.setAuthorId("testUser");
-            Mono<Comment> result = postService.saveComment(comment);
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public Mono<Comment> createComment(@RequestBody Comment comment) {
+
+        comment.setAuthorId("testUser");
+        return postService.saveComment(comment);
     }
 
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<Flux<Comment>> getCommentsByPostId(@PathVariable String postId){
-        try {
-            Flux<Comment> result = this.postService.getCommentsByPostId(postId)
-                    .filter(Comment::isPublished);
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public Flux<Comment> getCommentsByPostId(@PathVariable String postId){
+        return this.postService.getCommentsByPostId(postId)
+                .filter(Comment::isPublished);
     }
 
     @PutMapping("/comments/{id}")
-    public ResponseEntity<Mono<Comment>> updateComment(@PathVariable String id, @RequestBody Comment comment) {
-        try {
-            Mono<Comment> result = postService.getCommentById(id)
-                    .flatMap(c -> {
-                        Optional.ofNullable(comment.getContents()).ifPresent(c::setContents);
-                        Optional.ofNullable(comment.getAuthorId()).ifPresent(c::setAuthorId);
-                        Optional.ofNullable(comment.isPublished()).ifPresent(c::setPublished);
+    public Mono<Comment> updateComment(@PathVariable String id, @RequestBody Comment comment){
+        return postService.getCommentById(id)
+                .flatMap(c ->{
+                    Optional.ofNullable(comment.getContents()).ifPresent(c::setContents);
+                    Optional.ofNullable(comment.getAuthorId()).ifPresent(c::setAuthorId);
+                    Optional.ofNullable(comment.isPublished()).ifPresent(c::setPublished);
 
-                        c.setModifiedAt(LocalDateTime.now());
-                        return postService.saveComment(c);
-                    });
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+                    c.setModifiedAt(LocalDateTime.now());
+                    return postService.saveComment(c);
+                });
     }
 
     @GetMapping("/comments/count/{postId}")
-    public ResponseEntity<Mono<Long>> getCommentCount(@PathVariable String postId) {
-        try {
-            Mono<Long> result = postService.getCommentCount(postId, true);
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public Mono<Long> getCommentCount(@PathVariable String postId){
+        return postService.getCommentCount(postId, true);
     }
 
     @GetMapping("/{upperCommentId}/replies")
-    public ResponseEntity<Flux<Comment>> getCommentsByUpperCommentId(@PathVariable String upperCommentId) {
-        try {
-            Flux<Comment> result = this.postService.getCommentsByUpperCommentId(upperCommentId)
-                    .filter(Comment::isPublished);
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public Flux<Comment> getCommentsByUpperCommentId(@PathVariable String upperCommentId){
+        return this.postService.getCommentsByUpperCommentId(upperCommentId)
+                .filter(Comment::isPublished);
     }
+
 
     // 이미지 업로드
     @RequestMapping(value = "/posts/upload-image", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
