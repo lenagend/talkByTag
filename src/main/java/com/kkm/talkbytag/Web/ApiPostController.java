@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
+import com.kkm.talkbytag.domain.UserInfo;
 import com.kkm.talkbytag.dto.ImageUploadResponse;
+import com.kkm.talkbytag.dto.PostWithUserInfo;
 import com.kkm.talkbytag.service.PostService;
+import com.kkm.talkbytag.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,22 +33,57 @@ public class ApiPostController {
 
     private final PostService postService;
 
+    private final UserInfoService userInfoService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
     @Value("${upload.path}")
     private String uploadPath;
 
-    public ApiPostController(PostService postService) {
+    public ApiPostController(PostService postService, UserInfoService userInfoService) {
         this.postService = postService;
+        this.userInfoService = userInfoService;
     }
 
     @GetMapping("/posts")
-    public Flux<Post> getPosts(@RequestParam int offset, @RequestParam int limit){
+    public Flux<PostWithUserInfo> getPosts(@RequestParam int offset, @RequestParam int limit){
         return postService.getPosts()
                 .filter(Post::isPublished)
                 .skip(offset)
-                .take(limit);
+                .take(limit)
+                .flatMap(this::getPostWithNickname);
+    }
+
+    private Mono<PostWithUserInfo> getPostWithNickname(Post post) {
+        return userInfoService.findByUsername(post.getUsername())
+                .switchIfEmpty(Mono.defer(() -> {
+                    UserInfo anonymousUserInfo = new UserInfo();
+                    anonymousUserInfo.setNickname("익명");
+                    anonymousUserInfo.setProfileImage("/assets/images/avatar/placeholder.jpg");
+                    return Mono.just(anonymousUserInfo);
+                }))
+                .flatMap(user -> {
+                    PostWithUserInfo postWithUserInfo = new PostWithUserInfo();
+                    postWithUserInfo.setId(post.getId());
+                    postWithUserInfo.setHashTag(post.getHashTag());
+                    postWithUserInfo.setUsername(post.getUsername());
+                    postWithUserInfo.setContents(post.getContents());
+                    postWithUserInfo.setCreatedAt(post.getCreatedAt());
+                    postWithUserInfo.setModifiedAt(post.getModifiedAt());
+                    postWithUserInfo.setLiked(0);
+                    postWithUserInfo.setViewCount(0);
+                    postWithUserInfo.setPublished(post.isPublished());
+                    postWithUserInfo.setCommentCount(0L);
+                    postWithUserInfo.setNickname(user.getNickname());
+                    postWithUserInfo.setProfileImage(user.getProfileImage());
+
+                    return postService.getCommentCount(post.getId(), post.isPublished())
+                            .map(commentCount -> {
+                                postWithUserInfo.setCommentCount(commentCount);
+                                return postWithUserInfo;
+                            });
+                });
     }
 
     @GetMapping("/posts/read/{id}")
