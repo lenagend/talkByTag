@@ -5,11 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.domain.UserInfo;
+import com.kkm.talkbytag.dto.CommentWithUserInfo;
 import com.kkm.talkbytag.dto.ImageUploadResponse;
 import com.kkm.talkbytag.dto.PostWithUserInfo;
 import com.kkm.talkbytag.service.PostService;
 import com.kkm.talkbytag.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -51,10 +55,8 @@ public class ApiPostController {
 
     @GetMapping("/posts")
     public Flux<PostWithUserInfo> getPosts(@RequestParam int offset, @RequestParam int limit){
-        return postService.getPosts()
-                .filter(Post::isPublished)
-                .skip(offset)
-                .take(limit)
+        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return postService.getPosts(pageable, true)
                 .concatMap(this::getPostWithUserInfo);
     }
 
@@ -78,6 +80,7 @@ public class ApiPostController {
                     postWithUserInfo.setViewCount(0);
                     postWithUserInfo.setPublished(post.isPublished());
                     postWithUserInfo.setCommentCount(0L);
+
                     postWithUserInfo.setNickname(user.getNickname());
                     postWithUserInfo.setProfileImage(user.getProfileImage());
 
@@ -136,9 +139,38 @@ public class ApiPostController {
     }
 
     @GetMapping("/{postId}/comments")
-    public Flux<Comment> getCommentsByPostId(@PathVariable String postId){
+    public Flux<CommentWithUserInfo> getCommentsByPostId(@PathVariable String postId){
         return this.postService.getCommentsByPostId(postId)
-                .filter(Comment::isPublished);
+                .filter(Comment::isPublished)
+                .concatMap(this::getCommentWithUserInfo);
+    }
+
+    private Mono<CommentWithUserInfo> getCommentWithUserInfo(Comment comment) {
+        return userInfoService.findByUsername(comment.getUsername())
+                .switchIfEmpty(Mono.defer(() -> {
+                    UserInfo anonymousUserInfo = new UserInfo();
+                    anonymousUserInfo.setNickname("익명");
+                    anonymousUserInfo.setProfileImage(avatarPlaceholderPath);
+                    return Mono.just(anonymousUserInfo);
+                }))
+                .map(user -> {
+                    CommentWithUserInfo commentWithUserInfo = new CommentWithUserInfo();
+
+                    commentWithUserInfo.setId(comment.getId());
+                    commentWithUserInfo.setPostId(comment.getPostId());
+                    commentWithUserInfo.setUpperCommentId(comment.getUpperCommentId());
+                    commentWithUserInfo.setUsername(comment.getUsername());
+                    commentWithUserInfo.setContents(comment.getContents());
+                    commentWithUserInfo.setCreatedAt(comment.getCreatedAt());
+                    commentWithUserInfo.setModifiedAt(comment.getModifiedAt());
+                    commentWithUserInfo.setLiked(comment.getLiked());
+                    commentWithUserInfo.setPublished(comment.isPublished());
+
+                    commentWithUserInfo.setNickname(user.getNickname());
+                    commentWithUserInfo.setProfileImage(user.getProfileImage());
+
+                    return commentWithUserInfo;
+                });
     }
 
     @PutMapping("/comments/{id}")
@@ -160,9 +192,10 @@ public class ApiPostController {
     }
 
     @GetMapping("/{upperCommentId}/replies")
-    public Flux<Comment> getCommentsByUpperCommentId(@PathVariable String upperCommentId){
+    public Flux<CommentWithUserInfo> getCommentsByUpperCommentId(@PathVariable String upperCommentId){
         return this.postService.getCommentsByUpperCommentId(upperCommentId)
-                .filter(Comment::isPublished);
+                .filter(Comment::isPublished)
+                .concatMap(this::getCommentWithUserInfo);
     }
 
 

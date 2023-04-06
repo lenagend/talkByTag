@@ -10,8 +10,8 @@ import reactor.core.publisher.Mono;
 
 
 public interface PostRepository extends ReactiveCrudRepository<Post, String> {
-    Flux<Post> findAllByOrderByCreatedAtDesc();
+    Flux<Post> findAllByPublished(Pageable pageable, boolean published);
     Flux<Post> findByHashTagContainingOrderByCreatedAtDesc(String hashTag);
     Flux<Post> findByContentsContainingOrderByCreatedAtDesc(String contents);
-    Mono<Long> countByUsername(String username);
+    Mono<Long> countByUsernameAndPublished(String username, boolean published);
 }

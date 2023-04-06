@@ -4,6 +4,7 @@ import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.repository.CommentRepository;
 import com.kkm.talkbytag.repository.PostRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,7 +21,7 @@ public class PostService {
         this.commentRepository = commentRepository;
     }
 
-    public Flux<Post> getPosts(){return this.postRepository.findAllByOrderByCreatedAtDesc();}
+    public Flux<Post> getPosts(Pageable pageable, boolean published){return this.postRepository.findAllByPublished(pageable, published);}
 
     public Mono<Post> savePost(Post post){return this.postRepository.save(post);}
 
@@ -32,7 +33,7 @@ public class PostService {
 
     public Mono<Comment> getCommentById(String id){return this.commentRepository.findById(id);}
 
-    public Flux<Comment> getCommentsByPostId(String postId){return this.commentRepository.findByPostIdOrderByCreatedAtDesc(postId);}
+    public Flux<Comment> getCommentsByPostId(String postId){return this.commentRepository.findByPostIdAndUpperCommentIdIsNullOrderByCreatedAtDesc(postId);}
 
     public Mono<Comment> saveComment(Comment comment){return this.commentRepository.save(comment);}
 
@@ -40,5 +41,7 @@ public class PostService {
 
     public Flux<Comment> getCommentsByUpperCommentId(String upperCommentId){return this.commentRepository.findByUpperCommentIdOrderByCreatedAtDesc(upperCommentId);}
 
-    public Mono<Long> countByUsername(String username){return this.postRepository.countByUsername(username);}
+    public Mono<Long> countByUsername(String username, boolean published){return this.postRepository.countByUsernameAndPublished(username, published);}
+
+    public Mono<Long> countCommentByUsername(String username, boolean published){return this.commentRepository.countByUsernameAndPublished(username, published);}
 }
