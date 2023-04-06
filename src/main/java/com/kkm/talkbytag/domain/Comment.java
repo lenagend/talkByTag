@@ -3,16 +3,13 @@ package com.kkm.talkbytag.domain;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public class Comment {
     @Id
     private String id;
     private String postId;
     private String upperCommentId;
-    private String authorId;
+    private String username;
     private String contents;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime modifiedAt;
@@ -22,11 +19,11 @@ public class Comment {
     public Comment() {
     }
 
-    public Comment(String id, String postId, String upperCommentId, String authorId, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, int liked, boolean published) {
+    public Comment(String id, String postId, String upperCommentId, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, int liked, boolean published) {
         this.id = id;
         this.postId = postId;
         this.upperCommentId = upperCommentId;
-        this.authorId = authorId;
+        this.username = username;
         this.contents = contents;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
@@ -58,12 +55,12 @@ public class Comment {
         this.upperCommentId = upperCommentId;
     }
 
-    public String getAuthorId() {
-        return authorId;
+    public String getUsername() {
+        return username;
     }
 
-    public void setAuthorId(String authorId) {
-        this.authorId = authorId;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getContents() {

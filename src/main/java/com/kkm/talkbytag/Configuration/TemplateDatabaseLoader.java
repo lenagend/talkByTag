@@ -17,11 +17,11 @@ public class TemplateDatabaseLoader {
     CommandLineRunner initialize(MongoOperations mongo) {
         return args -> {
             for (int i = 0; i < 50; i++){
-                mongo.save(new Post("" + i, "@hashTag" + i, "testUser" + i, "testContents" + i, LocalDateTime.now(), LocalDateTime.now(), true));
+                mongo.save(new Post("" + i, "@hashTag" + i, "testuser1@gmail.com", "testContents" + i, LocalDateTime.now(), LocalDateTime.now(), true));
                 Thread.sleep(10); // 0.1초 지연
             }
             mongo.save(new User("testuser1@gmail.com", "password1", Collections.emptyList()));
-            mongo.save(new UserInfo("testuser1@gmail.com", "운영자", null, null, null, null, null));
+            mongo.save(new UserInfo("testuser1@gmail.com", "운영자", "/assets/images/avatar/master.jpg", null, null, null, null));
 
         };
     }

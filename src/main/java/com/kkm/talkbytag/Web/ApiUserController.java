@@ -7,6 +7,7 @@ import com.kkm.talkbytag.service.AuthenticationService;
 import com.kkm.talkbytag.service.CustomReactiveUserDetailsService;
 import com.kkm.talkbytag.service.PostService;
 import com.kkm.talkbytag.service.UserInfoService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,6 +37,9 @@ public class ApiUserController {
     private final UserInfoService userInfoService;
 
     private final PostService postService;
+
+    @Value("${avatar.placeholder.path}")
+    private String avatarPlaceholderPath;
 
     public ApiUserController(CustomReactiveUserDetailsService customReactiveUserDetailsService, AuthenticationService authenticationService, Validator userRegistrationDtoValidator, UserInfoService userInfoService, PostService postService) {
         this.customReactiveUserDetailsService = customReactiveUserDetailsService;
@@ -89,6 +93,7 @@ public class ApiUserController {
                                 UserInfo tempUserInfo = new UserInfo();
                                 tempUserInfo.setUsername(createdCustomUserDetails.getUsername());
                                 tempUserInfo.setNickname("임시유저" + UUID.randomUUID().toString() + "님");
+                                tempUserInfo.setProfileImage(avatarPlaceholderPath);
                                 userInfoService.saveUserInfo(tempUserInfo).subscribe();
                             })
                             .thenReturn(ResponseEntity.ok().body("가입이 완료되었습니다.")));

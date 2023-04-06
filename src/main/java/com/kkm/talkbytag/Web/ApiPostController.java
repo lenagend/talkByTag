@@ -41,6 +41,9 @@ public class ApiPostController {
     @Value("${upload.path}")
     private String uploadPath;
 
+    @Value("${avatar.placeholder.path}")
+    private String avatarPlaceholderPath;
+
     public ApiPostController(PostService postService, UserInfoService userInfoService) {
         this.postService = postService;
         this.userInfoService = userInfoService;
@@ -52,15 +55,15 @@ public class ApiPostController {
                 .filter(Post::isPublished)
                 .skip(offset)
                 .take(limit)
-                .flatMap(this::getPostWithNickname);
+                .concatMap(this::getPostWithUserInfo);
     }
 
-    private Mono<PostWithUserInfo> getPostWithNickname(Post post) {
+    private Mono<PostWithUserInfo> getPostWithUserInfo(Post post) {
         return userInfoService.findByUsername(post.getUsername())
                 .switchIfEmpty(Mono.defer(() -> {
                     UserInfo anonymousUserInfo = new UserInfo();
                     anonymousUserInfo.setNickname("익명");
-                    anonymousUserInfo.setProfileImage("/assets/images/avatar/placeholder.jpg");
+                    anonymousUserInfo.setProfileImage(avatarPlaceholderPath);
                     return Mono.just(anonymousUserInfo);
                 }))
                 .flatMap(user -> {
@@ -87,8 +90,9 @@ public class ApiPostController {
     }
 
     @GetMapping("/posts/read/{id}")
-    public Mono<Post> getPostById(@PathVariable String id){
-        return postService.getPostByPostId(id);
+    public Mono<PostWithUserInfo> getPostById(@PathVariable String id){
+        return postService.getPostByPostId(id)
+                .flatMap(this::getPostWithUserInfo);
     }
 
     @GetMapping("/posts/search")
@@ -128,8 +132,6 @@ public class ApiPostController {
 
     @PostMapping("/comments")
     public Mono<Comment> createComment(@RequestBody Comment comment) {
-
-        comment.setAuthorId("testUser");
         return postService.saveComment(comment);
     }
 
@@ -144,7 +146,7 @@ public class ApiPostController {
         return postService.getCommentById(id)
                 .flatMap(c ->{
                     Optional.ofNullable(comment.getContents()).ifPresent(c::setContents);
-                    Optional.ofNullable(comment.getAuthorId()).ifPresent(c::setAuthorId);
+                    Optional.ofNullable(comment.getUsername()).ifPresent(c::setUsername);
                     Optional.ofNullable(comment.isPublished()).ifPresent(c::setPublished);
 
                     c.setModifiedAt(LocalDateTime.now());
