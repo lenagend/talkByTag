@@ -100,17 +100,12 @@ public class ApiPostController {
 
     @GetMapping("/posts/search")
     public Flux<Post> searchByHashTag(@RequestParam("q") String q, @RequestParam int offset, @RequestParam int limit){
-        boolean startsWithAtSign = q != null && !q.isEmpty() && q.charAt(0) == '@';
+        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        boolean startsWithAtSign = q != null && !q.isEmpty() && q.charAt(0) == '#';
         if(startsWithAtSign){
-            return postService.searchByHashTag(q)
-                    .filter(Post::isPublished)
-                    .skip(offset)
-                    .take(limit);
+            return postService.searchByHashTag(pageable, q, true);
         }else{
-            return postService.searchByContents(q)
-                    .filter(Post::isPublished)
-                    .skip(offset)
-                    .take(limit);
+            return postService.searchByContents(pageable, q, true);
         }
     }
 
