@@ -52,26 +52,49 @@ public class ApiUserController {
 
     @GetMapping("/userInfo")
     public Mono<ResponseEntity<UserInfo>> getUserInfo(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        String username = authenticationService.extractUsername(token);
+        try{
+            String token = authHeader.replace("Bearer ", "");
+            String username = authenticationService.extractUsername(token);
 
-        Mono<UserInfo> userInfo = userInfoService.findByUsername(username);
-        Mono<Long> postCount = postService.countByUsername(username, true)
-                .doOnSuccess(count -> System.out.println("postCount: " + count));
-        Mono<Long> commentCount = postService.countCommentByUsername(username, true)
-                .doOnSuccess(count -> System.out.println("commentCount: " + count));
+            Mono<UserInfo> userInfo = userInfoService.findByUsername(username);
+            Mono<Long> postCount = postService.countByUsername(username, true)
+                    .doOnSuccess(count -> System.out.println("postCount: " + count));
+            Mono<Long> commentCount = postService.countCommentByUsername(username, true)
+                    .doOnSuccess(count -> System.out.println("commentCount: " + count));
 
-        return Mono.zip(userInfo, postCount, commentCount)
-                .map(tuple -> {
-                    UserInfo ui = tuple.getT1();
-                    Long pCount = tuple.getT2();
-                    Long cCount = tuple.getT3();
-                    ui.setPostCount(pCount);
-                    ui.setCommentCount(cCount);
-                    return ResponseEntity.ok(ui);
-                })
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+            return Mono.zip(userInfo, postCount, commentCount)
+                    .map(tuple -> {
+                        UserInfo ui = tuple.getT1();
+                        Long pCount = tuple.getT2();
+                        Long cCount = tuple.getT3();
+                        ui.setPostCount(pCount);
+                        ui.setCommentCount(cCount);
+                        return ResponseEntity.ok(ui);
+                    })
+                    .defaultIfEmpty(ResponseEntity.notFound().build());
+        }catch (Exception e){
+            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+        }
+
     }
+
+    @PutMapping
+    public Mono<ResponseEntity<UserInfo>> updateUserInfo(@RequestHeader("Authorization") String authHeader, @RequestBody UserInfo updatedUserInfo) {
+        try{
+            String token = authHeader.replace("Bearer ", "");
+            String username = authenticationService.extractUsername(token);
+
+            return userInfoService.updateUserInfo(username, updatedUserInfo)
+                    .map(ResponseEntity::ok)
+                    .defaultIfEmpty(ResponseEntity.notFound().build())
+                    .onErrorResume(IllegalArgumentException.class, e -> Mono.just(ResponseEntity.badRequest().body(null)));
+        }catch (Exception e){
+            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+        }
+
+    }
+
+
 
     @PostMapping("/register")
     public Mono<ResponseEntity<String>> register(@RequestBody Mono<UserRegistrationDto> registrationDtoMono) {
