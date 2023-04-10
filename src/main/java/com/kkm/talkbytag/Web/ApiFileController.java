@@ -34,7 +34,9 @@ public class ApiFileController {
     public Mono<ResponseEntity<?>> uploadImage(@RequestPart("file") Mono<FilePart> filePartMono) {
         return filePartMono
                 .flatMap(filePart -> {
-                    String fileName = UUID.randomUUID().toString();
+                    String originalFilename = filePart.filename();
+                    String fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".")); // 파일 확장자 추출
+                    String fileName = UUID.randomUUID() + fileExtension; // 확장자를 포함한 파일명 생성
                     Path path = Paths.get(uploadPath, fileName);
                     try {
                         Files.createDirectories(path.getParent());

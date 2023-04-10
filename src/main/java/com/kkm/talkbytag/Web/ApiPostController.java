@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -43,10 +46,11 @@ public class ApiPostController {
     }
 
     @GetMapping("/posts/search")
-    public Flux<PostWithUserInfo> searchByHashTag(@RequestParam("q") String q, @RequestParam int offset, @RequestParam int limit){
+    public Flux<PostWithUserInfo> searchByHashTag(@RequestParam("q") String q, @RequestParam int offset, @RequestParam int limit) throws UnsupportedEncodingException {
         Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        boolean startsWithAtSign = q != null && !q.isEmpty() && q.charAt(0) == '#';
-        if(startsWithAtSign){
+        String decodedQ = URLDecoder.decode(q, "UTF-8");
+        boolean startsWithHashSign = decodedQ != null && !decodedQ.isEmpty() && decodedQ.charAt(0) == '#';
+        if(startsWithHashSign){
             return postService.searchByHashTag(pageable, q, true)
                     .concatMap(postService::getPostWithUserInfo);
         }else{
