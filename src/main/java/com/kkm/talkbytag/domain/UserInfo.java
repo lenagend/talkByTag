@@ -1,8 +1,17 @@
 package com.kkm.talkbytag.domain;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDateTime;
 
+@Document
 public class UserInfo {
+    @Id
+    private String id;
+
+    @Indexed(unique = true)
     private String username;
     private String nickname;
     private String profileImage;
@@ -15,7 +24,8 @@ public class UserInfo {
     public UserInfo() {
     }
 
-    public UserInfo(String username, String nickname, String profileImage, Long postCount, Long commentCount, Long likeCount, LocalDateTime modifiedAt) {
+    public UserInfo(String id, String username, String nickname, String profileImage, Long postCount, Long commentCount, Long likeCount, LocalDateTime modifiedAt) {
+        this.id = id;
         this.username = username;
         this.nickname = nickname;
         this.profileImage = profileImage;
@@ -23,6 +33,14 @@ public class UserInfo {
         this.commentCount = commentCount;
         this.likeCount = likeCount;
         this.modifiedAt = modifiedAt;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getUsername() {

@@ -78,20 +78,19 @@ public class ApiUserController {
 
     }
 
-    @PutMapping
+    @PutMapping("/userInfo")
     public Mono<ResponseEntity<UserInfo>> updateUserInfo(@RequestHeader("Authorization") String authHeader, @RequestBody UserInfo updatedUserInfo) {
-        try{
+        try {
             String token = authHeader.replace("Bearer ", "");
             String username = authenticationService.extractUsername(token);
 
             return userInfoService.updateUserInfo(username, updatedUserInfo)
                     .map(ResponseEntity::ok)
                     .defaultIfEmpty(ResponseEntity.notFound().build())
-                    .onErrorResume(IllegalArgumentException.class, e -> Mono.just(ResponseEntity.badRequest().body(null)));
-        }catch (Exception e){
+                    .onErrorResume(IllegalArgumentException.class, e -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(null)));
+        } catch (Exception e) {
             return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
         }
-
     }
 
 
