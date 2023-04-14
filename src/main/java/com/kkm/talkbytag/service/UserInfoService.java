@@ -20,6 +20,7 @@ public class UserInfoService {
 
     public Mono<UserInfo> updateUserInfo(String username, UserInfo updatedUserInfo) {
         return userInfoRepository.findByUsername(username)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("해당 사용자를 찾을 수 없습니다.")))
                 .flatMap(existingUserInfo -> {
                     if (!existingUserInfo.getNickname().equals(updatedUserInfo.getNickname())) {
                         return userInfoRepository.existsByNickname(updatedUserInfo.getNickname())
@@ -39,5 +40,6 @@ public class UserInfoService {
                     }
                 });
     }
+
 
 }

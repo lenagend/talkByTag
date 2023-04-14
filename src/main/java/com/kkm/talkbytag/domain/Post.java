@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Document
 public class Post {
     private @Id String id;
     private String hashTag;
