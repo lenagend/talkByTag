@@ -14,4 +14,6 @@ public interface PostRepository extends ReactiveCrudRepository<Post, String> {
     Flux<Post> findByHashTagContainingAndPublished(Pageable pageable, String hashTag, boolean published);
     Flux<Post> findByContentsContainingAndPublished(Pageable pageable, String contents, boolean published);
     Mono<Long> countByUsernameAndPublished(String username, boolean published);
+    Flux<Post> findByUsernameAndPublished(String username, boolean published);
+    Flux<Post> findByIdAndPublished(Pageable pageable, String id, boolean published);
 }

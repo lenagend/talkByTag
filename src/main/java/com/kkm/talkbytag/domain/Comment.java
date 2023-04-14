@@ -1,9 +1,11 @@
 package com.kkm.talkbytag.domain;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+@Document
 public class Comment {
     @Id
     private String id;

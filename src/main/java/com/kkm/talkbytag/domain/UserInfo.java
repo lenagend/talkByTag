@@ -1,7 +1,10 @@
 package com.kkm.talkbytag.domain;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDateTime;
 
+@Document
 public class UserInfo {
     private String username;
     private String nickname;
