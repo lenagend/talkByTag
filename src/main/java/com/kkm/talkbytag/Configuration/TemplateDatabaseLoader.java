@@ -21,7 +21,7 @@ public class TemplateDatabaseLoader {
                 Thread.sleep(1); // 0.1초 지연
             }
             mongo.save(new User("testuser1@gmail.com", "password1", Collections.emptyList()));
-            mongo.save(new UserInfo("testuser1@gmail.com", "운영자", "/assets/images/avatar/master.jpg", null, null, null, null));
+            mongo.save(new UserInfo("testuser1@gmail.com", "운영자", "/images/avatar/master.jpg", null, null, null, null));
 
         };
     }
