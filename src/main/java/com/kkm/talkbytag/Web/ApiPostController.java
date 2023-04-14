@@ -5,11 +5,14 @@ import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.dto.CommentWithUserInfo;
 import com.kkm.talkbytag.dto.PostWithUserInfo;
+import com.kkm.talkbytag.service.AuthenticationService;
 import com.kkm.talkbytag.service.PostService;
 import com.kkm.talkbytag.service.UserInfoService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,10 +29,13 @@ public class ApiPostController {
 
     private final PostService postService;
     private final UserInfoService userInfoService;
+    private final AuthenticationService authenticationService;
 
-    public ApiPostController(PostService postService, UserInfoService userInfoService) {
+
+    public ApiPostController(PostService postService, UserInfoService userInfoService, AuthenticationService authenticationService) {
         this.postService = postService;
         this.userInfoService = userInfoService;
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping("/posts")
@@ -117,4 +123,75 @@ public class ApiPostController {
                 .concatMap(postService::getCommentWithUserInfo);
     }
 
+    @PutMapping("/posts/{postId}/like")
+    public Mono<ResponseEntity<Void>> togglePostLike(@PathVariable String postId, @RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String username = authenticationService.extractUsername(token);
+
+            return postService.toggleLike(username, postId, null);
+        } catch (Exception e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+        }
+    }
+
+    @PutMapping("/comments/{commentId}/like")
+    public Mono<ResponseEntity<Void>> toggleCommentLike(@PathVariable String commentId, @RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String username = authenticationService.extractUsername(token);
+
+            return postService.toggleLike(username, null, commentId);
+        } catch (Exception e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+        }
+    }
+
+    @GetMapping("/posts/{postId}/liked")
+    public Mono<ResponseEntity<Boolean>> isPostLikedByUser(@PathVariable String postId, @RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String username = authenticationService.extractUsername(token);
+
+            return postService.isPostLikedByUser(postId, username)
+                    .map(ResponseEntity::ok)
+                    .defaultIfEmpty(ResponseEntity.ok(false));
+        } catch (Exception e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null));
+        }
+    }
+
+    @GetMapping("/comments/{commentId}/liked")
+    public Mono<ResponseEntity<Boolean>> isCommentLikedByUser(@PathVariable String commentId, @RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String username = authenticationService.extractUsername(token);
+
+            return postService.isCommentLikedByUser(commentId, username)
+                    .map(ResponseEntity::ok)
+                    .defaultIfEmpty(ResponseEntity.ok(false));
+        } catch (Exception e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null));
+        }
+    }
+
+    @GetMapping("/posts/{postId}/likeCount")
+    public Mono<Long> getPostLikeCount(@PathVariable String postId) {
+        return postService.getPostLikeCount(postId);
+    }
+
+    @GetMapping("/comments/{commentId}/likeCount")
+    public Mono<Long> getCommentLikeCount(@PathVariable String commentId) {
+        return postService.getCommentLikeCount(commentId);
+    }
+
+    @GetMapping("/posts/liked")
+    public Flux<PostWithUserInfo> getLikedPosts(@RequestParam int offset, @RequestParam int limit, @RequestHeader("Authorization") String authHeader){
+        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        String token = authHeader.replace("Bearer ", "");
+        String username = authenticationService.extractUsername(token);
+
+        return postService.getLikedPostsByUsername(pageable, username)
+                .concatMap(postService::getPostWithUserInfo);
+    }
 }

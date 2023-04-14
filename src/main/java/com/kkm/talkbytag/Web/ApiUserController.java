@@ -61,14 +61,18 @@ public class ApiUserController {
                     .doOnSuccess(count -> System.out.println("postCount: " + count));
             Mono<Long> commentCount = postService.countCommentByUsername(username, true)
                     .doOnSuccess(count -> System.out.println("commentCount: " + count));
+            Mono<Long> likeCount = postService.countPostsLikedByUsername(username)
+                    .doOnSuccess(count -> System.out.println("likeCount: " + count));
 
-            return Mono.zip(userInfo, postCount, commentCount)
+            return Mono.zip(userInfo, postCount, commentCount, likeCount)
                     .map(tuple -> {
                         UserInfo ui = tuple.getT1();
                         Long pCount = tuple.getT2();
                         Long cCount = tuple.getT3();
+                        Long lCount = tuple.getT4();
                         ui.setPostCount(pCount);
                         ui.setCommentCount(cCount);
+                        ui.setLikeCount(lCount);
                         return ResponseEntity.ok(ui);
                     })
                     .defaultIfEmpty(ResponseEntity.notFound().build());

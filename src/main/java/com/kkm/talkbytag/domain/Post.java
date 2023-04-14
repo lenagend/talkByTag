@@ -1,12 +1,14 @@
 package com.kkm.talkbytag.domain;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Document
 public class Post {
     private @Id String id;
     private String hashTag;

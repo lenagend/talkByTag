@@ -1,14 +1,17 @@
 package com.kkm.talkbytag.service;
 
 import com.kkm.talkbytag.domain.Comment;
+import com.kkm.talkbytag.domain.Liked;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.domain.UserInfo;
 import com.kkm.talkbytag.dto.CommentWithUserInfo;
 import com.kkm.talkbytag.dto.PostWithUserInfo;
 import com.kkm.talkbytag.repository.CommentRepository;
+import com.kkm.talkbytag.repository.LikedRepository;
 import com.kkm.talkbytag.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,14 +23,17 @@ public class PostService {
 
     private final CommentRepository commentRepository;
 
+    private final LikedRepository likedRepository;
+
     private final UserInfoService userInfoService;
 
     @Value("${avatar.placeholder.path}")
     private String avatarPlaceholderPath;
 
-    public PostService(PostRepository postRepository, CommentRepository commentRepository, UserInfoService userInfoService) {
+    public PostService(PostRepository postRepository, CommentRepository commentRepository, LikedRepository likedRepository, UserInfoService userInfoService) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
+        this.likedRepository = likedRepository;
         this.userInfoService = userInfoService;
     }
 
@@ -52,6 +58,8 @@ public class PostService {
     public Flux<Comment> getCommentsByUpperCommentId(String upperCommentId){return this.commentRepository.findByUpperCommentIdOrderByCreatedAtDesc(upperCommentId);}
 
     public Mono<Long> countByUsername(String username, boolean published){return this.postRepository.countByUsernameAndPublished(username, published);}
+
+    public Flux<Post> findPublishedPostsByUser(String username, boolean published){return this.postRepository.findByUsernameAndPublished(username, published);}
 
     public Mono<Long> countCommentByUsername(String username, boolean published){return this.commentRepository.countByUsernameAndPublished(username, published);}
 
@@ -114,5 +122,66 @@ public class PostService {
                     return commentWithUserInfo;
                 });
     }
+
+    public Mono<ResponseEntity<Void>> toggleLike(String username, String postId, String commentId) {
+        if (postId != null && commentId != null) {
+            return Mono.error(new IllegalArgumentException("postId와 commentId를 동시에 제공할 수 없습니다."));
+        }
+        if (postId == null && commentId == null) {
+            return Mono.error(new IllegalArgumentException("postId 또는 commentId를 제공해야 합니다."));
+        }
+
+        Mono<Liked> existingLike;
+        if (postId != null) {
+            existingLike = likedRepository.findByUsernameAndPostId(username, postId);
+        } else {
+            existingLike = likedRepository.findByUsernameAndCommentId(username, commentId);
+        }
+
+        return existingLike
+                .flatMap(liked -> {
+                    // 이미 좋아요 상태인 경우, 좋아요 취소
+                    return likedRepository.delete(liked)
+                            .thenReturn(ResponseEntity.noContent().<Void>build());
+                })
+                .switchIfEmpty(Mono.defer(() -> {
+                    // 좋아요 상태가 아닌 경우, 좋아요
+                    Liked newLike = new Liked();
+                    newLike.setUsername(username);
+                    if (postId != null) {
+                        newLike.setPostId(postId);
+                    } else {
+                        newLike.setCommentId(commentId);
+                    }
+                    return likedRepository.save(newLike)
+                            .thenReturn(ResponseEntity.ok().<Void>build());
+                }));
+    }
+
+    public Mono<Boolean> isPostLikedByUser(String postId, String username) {
+        return likedRepository.existsByPostIdAndUsername(postId, username);
+    }
+
+    public Mono<Long> getPostLikeCount(String postId) {
+        return likedRepository.countByPostId(postId);
+    }
+
+    public Mono<Boolean> isCommentLikedByUser(String commentId, String username) {
+        return likedRepository.existsByCommentIdAndUsername(commentId, username);
+    }
+
+    public Mono<Long> getCommentLikeCount(String commentId) {
+        return likedRepository.countByCommentId(commentId);
+    }
+
+    public Mono<Long> countPostsLikedByUsername(String username) {
+        return likedRepository.countByUsername(username);
+    }
+
+    public Flux<Post> getLikedPostsByUsername(Pageable pageable, String username) {
+        return likedRepository.findByUsername(username)
+                .flatMap(liked -> postRepository.findByIdAndPublished(pageable, liked.getPostId(), true));
+    }
+
 }
 
