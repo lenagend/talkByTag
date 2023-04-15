@@ -190,5 +190,22 @@ public class ApiUserController {
         });
     }
 
+    @DeleteMapping("/user/delete")
+    public Mono<ResponseEntity<Boolean>> deleteUser(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        String username = authenticationService.extractUsername(token);
 
+        Mono<Boolean> deleteUserMono = customReactiveUserDetailsService.deleteUser(username);
+        Mono<Boolean> deleteUserInfoMono = userInfoService.deleteUserInfoByUsername(username);
+
+        return Mono.zip(deleteUserMono, deleteUserInfoMono)
+                .flatMap(results -> {
+                    boolean result = results.getT1() && results.getT2();
+                    if (result) {
+                        return Mono.just(ResponseEntity.ok(true));
+                    } else {
+                        return Mono.just(ResponseEntity.badRequest().build());
+                    }
+                });
+    }
 }

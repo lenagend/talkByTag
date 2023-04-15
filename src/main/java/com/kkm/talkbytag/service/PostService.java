@@ -183,5 +183,26 @@ public class PostService {
                 .flatMap(liked -> postRepository.findByIdAndPublished(pageable, liked.getPostId(), true));
     }
 
+    public Mono<Boolean> unpublishUserPosts(String username) {
+        return postRepository.findByUsernameAndPublished(username, true)
+                .flatMap(post -> {
+                    post.setPublished(false);
+                    return postRepository.save(post);
+                })
+                .collectList()
+                .map(posts -> !posts.isEmpty());
+    }
+
+    public Mono<Boolean> unpublishUserComments(String username) {
+        return commentRepository.findByUsernameAndPublished(username, true)
+                .flatMap(comment -> {
+                    comment.setPublished(false);
+                    return commentRepository.save(comment);
+                })
+                .collectList()
+                .map(comments -> !comments.isEmpty());
+    }
+
+
 }
 

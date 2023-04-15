@@ -40,4 +40,10 @@ public class CustomReactiveUserDetailsService implements ReactiveUserDetailsServ
                     }
                 });
     }
+
+    public Mono<Boolean> deleteUser(String username) {
+        return userRepository.deleteByUsername(username)
+                .thenReturn(true)
+                .onErrorReturn(false);
+    }
 }

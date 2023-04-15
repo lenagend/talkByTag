@@ -1,6 +1,5 @@
 package com.kkm.talkbytag.repository;
 
-import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Liked;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;

@@ -41,5 +41,8 @@ public class UserInfoService {
                 });
     }
 
+    public Mono<Boolean> deleteUserInfoByUsername(String username){return this.userInfoRepository.deleteByUsername(username)
+            .thenReturn(true)
+            .onErrorReturn(false);}
 
 }
