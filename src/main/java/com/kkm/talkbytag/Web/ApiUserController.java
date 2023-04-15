@@ -2,6 +2,7 @@ package com.kkm.talkbytag.Web;
 
 import com.kkm.talkbytag.domain.User;
 import com.kkm.talkbytag.domain.UserInfo;
+import com.kkm.talkbytag.dto.UserChangePasswordDto;
 import com.kkm.talkbytag.dto.UserRegistrationDto;
 import com.kkm.talkbytag.service.AuthenticationService;
 import com.kkm.talkbytag.service.CustomReactiveUserDetailsService;
@@ -12,13 +13,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -34,21 +36,25 @@ public class ApiUserController {
 
     private final Validator userRegistrationDtoValidator;
 
+    private final Validator userChangePasswordDtoValidator;
+
     private final UserInfoService userInfoService;
 
     private final PostService postService;
 
+
+
     @Value("${avatar.placeholder.path}")
     private String avatarPlaceholderPath;
 
-    public ApiUserController(CustomReactiveUserDetailsService customReactiveUserDetailsService, AuthenticationService authenticationService, Validator userRegistrationDtoValidator, UserInfoService userInfoService, PostService postService) {
+    public ApiUserController(CustomReactiveUserDetailsService customReactiveUserDetailsService, AuthenticationService authenticationService, Validator userRegistrationDtoValidator, Validator userChangePasswordDtoValidator, UserInfoService userInfoService, PostService postService) {
         this.customReactiveUserDetailsService = customReactiveUserDetailsService;
         this.authenticationService = authenticationService;
         this.userRegistrationDtoValidator = userRegistrationDtoValidator;
+        this.userChangePasswordDtoValidator = userChangePasswordDtoValidator;
         this.userInfoService = userInfoService;
         this.postService = postService;
     }
-
 
     @GetMapping("/userInfo")
     public Mono<ResponseEntity<UserInfo>> getUserInfo(@RequestHeader("Authorization") String authHeader) {
@@ -155,4 +161,34 @@ public class ApiUserController {
             return Mono.just(new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
         }
     }
+
+    @PostMapping("/change-password")
+    public Mono<ResponseEntity<String>> changePassword(@RequestBody Mono<UserChangePasswordDto> changePasswordDtoMono, @RequestHeader("Authorization") String authHeader) {
+        return changePasswordDtoMono.flatMap(changePasswordDto -> {
+            Errors validationErrors = new BeanPropertyBindingResult(changePasswordDto, "UserChangePasswordDto");
+            userChangePasswordDtoValidator.validate(changePasswordDto, validationErrors);
+
+            if (validationErrors.hasErrors()) {
+                String errorMessage = validationErrors.getFieldErrors().stream()
+                        .map(error -> error.getDefaultMessage())
+                        .collect(Collectors.joining("\n"));
+                return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage));
+            }
+
+            String token = authHeader.replace("Bearer ", "");
+            String username = authenticationService.extractUsername(token);
+
+            return customReactiveUserDetailsService.changePassword(username, changePasswordDto.getCurrentPassword(), changePasswordDto.getNewPassword())
+                    .flatMap(isChanged -> {
+                        if (isChanged) {
+                            return Mono.just(ResponseEntity.ok().body("비밀번호가 변경되었습니다."));
+                        } else {
+                            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("현재 비밀번호가 올바르지 않습니다."));
+                        }
+                    })
+                    .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("사용자를 찾을 수 없습니다.")));
+        });
+    }
+
+
 }

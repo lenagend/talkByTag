@@ -28,4 +28,16 @@ public class CustomReactiveUserDetailsService implements ReactiveUserDetailsServ
         return userRepository.save(user);
     }
 
+    public Mono<Boolean> changePassword(String username, String currentPassword, String newPassword) {
+        return userRepository.findByUsername(username)
+                .flatMap(user -> {
+                    if (user.getPassword().equals(currentPassword)) {
+                        user.setPassword(newPassword);
+                        return userRepository.save(user)
+                                .thenReturn(true);
+                    } else {
+                        return Mono.just(false);
+                    }
+                });
+    }
 }

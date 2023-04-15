@@ -8,10 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
@@ -32,8 +29,10 @@ public class ApiFileController {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @RequestMapping(value = "/upload-image", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseEntity<?>> uploadImage(@RequestPart("file") Mono<FilePart> filePartMono) {
+    @PostMapping(value = "/upload-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<ResponseEntity<?>> uploadImage(@RequestPart("file") Mono<FilePart> filePartMono,  @RequestPart("imageType") String imageType) {
+        System.out.println("Received imageType: " + imageType); // 로깅 추가
+
         List<String> allowedExtensions = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", ".bmp");
 
         return filePartMono
@@ -46,14 +45,17 @@ public class ApiFileController {
                     }
 
                     String fileName = UUID.randomUUID() + fileExtension; // 확장자를 포함한 파일명 생성
-                    Path path = Paths.get(uploadPath, fileName);
+                    Path path = Paths.get(uploadPath, imageType, fileName); // 경로에 imageType을 추가
+
+                    // 경로가 없으면 생성
                     try {
                         Files.createDirectories(path.getParent());
                     } catch (IOException e) {
                         return Mono.error(e);
                     }
+
                     return filePart.transferTo(new File(path.toString()))
-                            .thenReturn(new ImageUploadResponse("/images/" + fileName));
+                            .thenReturn(new ImageUploadResponse("/images/" + imageType + "/" + fileName));
                 })
                 .map(response -> {
                     try {
