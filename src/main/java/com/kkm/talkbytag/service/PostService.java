@@ -59,7 +59,7 @@ public class PostService {
 
     public Mono<Long> countByUsername(String username, boolean published){return this.postRepository.countByUsernameAndPublished(username, published);}
 
-    public Flux<Post> findPublishedPostsByUser(String username, boolean published){return this.postRepository.findByUsernameAndPublished(username, published);}
+    public Flux<Post> findPublishedPostsByUser(Pageable pageable, String username, boolean published){return this.postRepository.findByUsernameAndPublished(pageable, username, published);}
 
     public Mono<Long> countCommentByUsername(String username, boolean published){return this.commentRepository.countByUsernameAndPublished(username, published);}
 

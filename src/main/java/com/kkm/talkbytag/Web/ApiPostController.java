@@ -46,6 +46,15 @@ public class ApiPostController {
                 .concatMap(postService::getPostWithUserInfo);
     }
 
+    @GetMapping("/posts/my")
+    public Flux<PostWithUserInfo> getMyPosts(@RequestParam int offset, @RequestParam int limit, @RequestParam boolean published, @RequestHeader("Authorization") String authHeader){
+        String token = authHeader.replace("Bearer ", "");
+        String username = authenticationService.extractUsername(token);
+        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return postService.findPublishedPostsByUser(pageable, username, published)
+                .concatMap(postService::getPostWithUserInfo);
+    }
+
     @GetMapping("/posts/read/{id}")
     public Mono<PostWithUserInfo> getPostById(@PathVariable String id){
         return postService.getPostByPostId(id)

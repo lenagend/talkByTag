@@ -16,4 +16,7 @@ public interface PostRepository extends ReactiveCrudRepository<Post, String> {
     Mono<Long> countByUsernameAndPublished(String username, boolean published);
     Flux<Post> findByUsernameAndPublished(String username, boolean published);
     Flux<Post> findByIdAndPublished(Pageable pageable, String id, boolean published);
+    Flux<Post> findByUsernameAndPublished(Pageable pageable,  String username, boolean published);
+
+
 }
