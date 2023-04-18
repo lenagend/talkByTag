@@ -1,6 +1,5 @@
 package com.kkm.talkbytag.Web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kkm.talkbytag.domain.Comment;
 import com.kkm.talkbytag.domain.Post;
 import com.kkm.talkbytag.dto.CommentWithUserInfo;
@@ -13,14 +12,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -51,8 +48,17 @@ public class ApiPostController {
         String token = authHeader.replace("Bearer ", "");
         String username = authenticationService.extractUsername(token);
         Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return postService.findPublishedPostsByUser(pageable, username, published)
+        return postService.getPublishedPostsByUser(pageable, username, published)
                 .concatMap(postService::getPostWithUserInfo);
+    }
+
+    @GetMapping("/comments/my")
+    public Flux<CommentWithUserInfo> getMyComments(@RequestParam int offset, @RequestParam int limit, @RequestHeader("Authorization") String authHeader){
+        String token = authHeader.replace("Bearer ", "");
+        String username = authenticationService.extractUsername(token);
+        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return postService.getPublishedCommentsByUser(pageable, username, true)
+                .concatMap(postService::getCommentWithUserInfo);
     }
 
     @GetMapping("/posts/read/{id}")
