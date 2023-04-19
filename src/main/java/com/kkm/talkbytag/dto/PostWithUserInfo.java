@@ -1,15 +1,17 @@
 package com.kkm.talkbytag.dto;
 
+import com.kkm.talkbytag.domain.Post;
+
 import java.time.LocalDateTime;
 
 public class PostWithUserInfo {
     private String id;
-    private String hashTag;
+    private String title;
     private String username;
     private String contents;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private int liked;
+    private Long liked;
     private int viewCount;
     private boolean published;
     private Long commentCount;
@@ -20,9 +22,9 @@ public class PostWithUserInfo {
     public PostWithUserInfo() {
     }
 
-    public PostWithUserInfo(String id, String hashTag, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, int liked, int viewCount, boolean published, Long commentCount, String nickname, String profileImage) {
+    public PostWithUserInfo(String id, String title, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, Long liked, int viewCount, boolean published, Long commentCount, String nickname, String profileImage) {
         this.id = id;
-        this.hashTag = hashTag;
+        this.title = title;
         this.username = username;
         this.contents = contents;
         this.createdAt = createdAt;
@@ -43,12 +45,12 @@ public class PostWithUserInfo {
         this.id = id;
     }
 
-    public String getHashTag() {
-        return hashTag;
+    public String getTitle() {
+        return title;
     }
 
-    public void setHashTag(String hashTag) {
-        this.hashTag = hashTag;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getUsername() {
@@ -83,11 +85,11 @@ public class PostWithUserInfo {
         this.modifiedAt = modifiedAt;
     }
 
-    public int getLiked() {
+    public Long getLiked() {
         return liked;
     }
 
-    public void setLiked(int liked) {
+    public void setLiked(Long liked) {
         this.liked = liked;
     }
 
@@ -129,5 +131,17 @@ public class PostWithUserInfo {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public static PostWithUserInfo fromPost(Post post) {
+        PostWithUserInfo postWithUserInfo = new PostWithUserInfo();
+        postWithUserInfo.setId(post.getId());
+        postWithUserInfo.setTitle(post.getTitle());
+        postWithUserInfo.setUsername(post.getUsername());
+        postWithUserInfo.setContents(post.getContents());
+        postWithUserInfo.setCreatedAt(post.getCreatedAt());
+        postWithUserInfo.setModifiedAt(post.getModifiedAt());
+        postWithUserInfo.setPublished(post.isPublished());
+        return postWithUserInfo;
     }
 }

@@ -442,7 +442,7 @@ Header END -->
                             </li>
                         </ul>
                         <!-- Share feed toolbar END -->
-                        <input type="hidden" name="hashTag" id="hashTag" class="form-control" value="newHashTag"/>
+                        <input type="hidden" name="title" id="title" class="form-control" value="newTitle"/>
                     </form>
                 </div>
                 <!-- Share feed END -->
@@ -460,7 +460,7 @@ Header END -->
                                 <!-- Info -->
                                 <div>
                                     <div class="nav nav-divider">
-                                        <h6 class="nav-item card-title mb-0"> <a href="#!" th:text="${post.hashTag}"></a></h6>
+                                        <h6 class="nav-item card-title mb-0"> <a href="#!" th:text="${post.title}"></a></h6>
                                         <span class="nav-item small" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
                                     </div>
                                     <p class="mb-0 small" th:text="${post.username}"></p>

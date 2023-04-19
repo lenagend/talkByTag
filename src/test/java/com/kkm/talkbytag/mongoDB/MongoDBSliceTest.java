@@ -20,13 +20,13 @@ public class MongoDBSliceTest {
     @Test
     void postRepositorySavesPosts(){
         Post samplePost = new Post();
-        samplePost.setHashTag("hashTag1");
+        samplePost.setTitle("title1");
 
         postRepository.save(samplePost)
                 .as(StepVerifier::create)
                 .expectNextMatches(post -> {
                     assertThat(post.getId()).isNotNull();
-                    assertThat(post.getHashTag()).isEqualTo("hashTag1");
+                    assertThat(post.getTitle()).isEqualTo("title1");
                     System.out.println(post.toString());
                     return true;
                 }).verifyComplete();

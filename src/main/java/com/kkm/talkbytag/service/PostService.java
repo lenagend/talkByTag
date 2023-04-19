@@ -16,6 +16,11 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Comparator;
+
 @Service
 public class PostService {
 
@@ -43,7 +48,7 @@ public class PostService {
 
     public Mono<Post> getPostByPostId(String postId){return this.postRepository.findById(postId);}
 
-    public Flux<Post> searchByHashTag(Pageable pageable, String hashTag, boolean published){return postRepository.findByHashTagContainingAndPublished(pageable, hashTag, published);}
+    public Flux<Post> searchByTitle(Pageable pageable, String title, boolean published){return postRepository.findByTitleContainingAndPublished(pageable, title, published);}
 
     public Flux<Post> searchByContents(Pageable pageable, String contents, boolean published){return postRepository.findByContentsContainingAndPublished(pageable,contents, published);}
 
@@ -74,18 +79,7 @@ public class PostService {
                     return Mono.just(anonymousUserInfo);
                 }))
                 .flatMap(user -> {
-                    PostWithUserInfo postWithUserInfo = new PostWithUserInfo();
-                    postWithUserInfo.setId(post.getId());
-                    postWithUserInfo.setHashTag(post.getHashTag());
-                    postWithUserInfo.setUsername(post.getUsername());
-                    postWithUserInfo.setContents(post.getContents());
-                    postWithUserInfo.setCreatedAt(post.getCreatedAt());
-                    postWithUserInfo.setModifiedAt(post.getModifiedAt());
-                    postWithUserInfo.setLiked(0);
-                    postWithUserInfo.setViewCount(0);
-                    postWithUserInfo.setPublished(post.isPublished());
-                    postWithUserInfo.setCommentCount(0L);
-
+                    PostWithUserInfo postWithUserInfo = PostWithUserInfo.fromPost(post);
                     postWithUserInfo.setNickname(user.getNickname());
                     postWithUserInfo.setProfileImage(user.getProfileImage());
 
@@ -205,6 +199,30 @@ public class PostService {
                 .map(comments -> !comments.isEmpty());
     }
 
+    public Flux<PostWithUserInfo> getTopPostsByLikesOnDate(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        LocalDateTime startOfDay = startDate.atStartOfDay();
+        LocalDateTime endOfDay = endDate.atTime(LocalTime.MAX);
+
+        return likedRepository.findTopLikedPostsByDateRange(startOfDay, endOfDay, pageable)
+                .flatMap(liked -> postRepository.findById(liked.getPostId())
+                        .flatMap(post -> {
+                            PostWithUserInfo postWithUserInfo = PostWithUserInfo.fromPost(post);
+
+                            return getPostLikeCount(post.getId())
+                                    .flatMap(likesCount -> {
+                                        postWithUserInfo.setLiked(likesCount);
+
+                                        return userInfoService.findByUsername(post.getUsername())
+                                                .map(userInfo -> {
+                                                    postWithUserInfo.setNickname(userInfo.getNickname());
+                                                    postWithUserInfo.setProfileImage(userInfo.getProfileImage());
+                                                    return postWithUserInfo;
+                                                });
+                                    });
+                        }))
+                .sort(Comparator.comparing(PostWithUserInfo::getLiked)
+                        .thenComparing(PostWithUserInfo::getCreatedAt).reversed());
+    }
 
 }
 

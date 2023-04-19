@@ -18,6 +18,8 @@ import reactor.core.publisher.Mono;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -37,10 +39,21 @@ public class ApiPostController {
     }
 
     @GetMapping("/posts")
-    public Flux<PostWithUserInfo> getPosts(@RequestParam int offset, @RequestParam int limit){
-        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return postService.getPosts(pageable, true)
-                .concatMap(postService::getPostWithUserInfo);
+    public Flux<PostWithUserInfo> getPosts(@RequestParam int offset, @RequestParam int limit,
+                                           @RequestParam(required = false) String startDate,
+                                           @RequestParam(required = false) String endDate,
+                                           @RequestParam String sortType) {
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+
+        if ("likes".equals(sortType)) {
+            LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.now();
+            LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.now();
+            return postService.getTopPostsByLikesOnDate(start, end, pageable);
+        } else {
+            pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+            return postService.getPosts(pageable, true)
+                    .concatMap(postService::getPostWithUserInfo);
+        }
     }
 
     @GetMapping("/posts/my")
@@ -68,16 +81,19 @@ public class ApiPostController {
     }
 
     @GetMapping("/posts/search")
-    public Flux<PostWithUserInfo> searchByHashTag(@RequestParam("q") String q, @RequestParam int offset, @RequestParam int limit) throws UnsupportedEncodingException {
+    public Flux<PostWithUserInfo> searchPosts(@RequestParam("type") String type, @RequestParam("q") String q, @RequestParam int offset, @RequestParam int limit) throws UnsupportedEncodingException {
         Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        String decodedQ = URLDecoder.decode(q, "UTF-8");
-        boolean startsWithHashSign = decodedQ != null && !decodedQ.isEmpty() && decodedQ.charAt(0) == '#';
-        if(startsWithHashSign){
-            return postService.searchByHashTag(pageable, q, true)
-                    .concatMap(postService::getPostWithUserInfo);
-        }else{
-            return postService.searchByContents(pageable, q, true)
-                    .concatMap(postService::getPostWithUserInfo);
+        String decodedQuery = URLDecoder.decode(q, StandardCharsets.UTF_8.toString());
+        switch (type.toLowerCase()) {
+            case "title":
+                return postService.searchByTitle(pageable, decodedQuery, true)
+                        .concatMap(postService::getPostWithUserInfo);
+
+            case "contents":
+                return postService.searchByContents(pageable, decodedQuery, true)
+                        .concatMap(postService::getPostWithUserInfo);
+            default:
+                throw new IllegalArgumentException("Invalid search type. Accepted values are 'title', 'contents'.");
         }
     }
 
@@ -92,7 +108,7 @@ public class ApiPostController {
                 .flatMap(p -> {
                     Optional.ofNullable(post.getContents()).ifPresent(p::setContents);
                     Optional.ofNullable(post.getUsername()).ifPresent(p::setUsername);
-                    Optional.ofNullable(post.getHashTag()).ifPresent(p::setHashTag);
+                    Optional.ofNullable(post.getTitle()).ifPresent(p::setTitle);
                     Optional.ofNullable(post.isPublished()).ifPresent(p::setPublished);
 
                     p.setModifiedAt(LocalDateTime.now());
@@ -231,4 +247,6 @@ public class ApiPostController {
                 .map(result -> ResponseEntity.ok(result))
                 .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
+
+
 }

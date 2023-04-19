@@ -17,7 +17,7 @@ public class TemplateDatabaseLoader {
     CommandLineRunner initialize(MongoOperations mongo) {
         return args -> {
             for (int i = 0; i < 500; i++){
-                mongo.save(new Post("" + i, "#HashTag" + i, "testuser1@gmail.com", "testContents" + i, LocalDateTime.now(), LocalDateTime.now(), true));
+                mongo.save(new Post("" + i, "제목" + i, "testuser1@gmail.com", "testContents" + i, LocalDateTime.now(), LocalDateTime.now(), true));
                 Thread.sleep(1); // 0.1초 지연
             }
             mongo.save(new User("testuser1@gmail.com", "password1", Collections.emptyList()));
