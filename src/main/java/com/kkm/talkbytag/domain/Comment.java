@@ -1,7 +1,6 @@
 package com.kkm.talkbytag.domain;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
@@ -14,13 +13,13 @@ public class Comment {
     private String contents;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime modifiedAt;
-    private int liked = 0;
+    private int likes;
     private boolean published = true;
 
     public Comment() {
     }
 
-    public Comment(String id, String postId, String upperCommentId, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, int liked, boolean published) {
+    public Comment(String id, String postId, String upperCommentId, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, int likes, boolean published) {
         this.id = id;
         this.postId = postId;
         this.upperCommentId = upperCommentId;
@@ -28,7 +27,7 @@ public class Comment {
         this.contents = contents;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-        this.liked = liked;
+        this.likes = likes;
         this.published = published;
     }
 
@@ -88,12 +87,12 @@ public class Comment {
         this.modifiedAt = modifiedAt;
     }
 
-    public int getLiked() {
-        return liked;
+    public int getLikes() {
+        return likes;
     }
 
-    public void setLiked(int liked) {
-        this.liked = liked;
+    public void setLikes(int likes) {
+        this.likes = likes;
     }
 
     public boolean isPublished() {

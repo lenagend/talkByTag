@@ -11,7 +11,7 @@ public class PostWithUserInfo {
     private String contents;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private Long liked;
+    private Long likes;
     private int viewCount;
     private boolean published;
     private Long commentCount;
@@ -22,14 +22,14 @@ public class PostWithUserInfo {
     public PostWithUserInfo() {
     }
 
-    public PostWithUserInfo(String id, String title, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, Long liked, int viewCount, boolean published, Long commentCount, String nickname, String profileImage) {
+    public PostWithUserInfo(String id, String title, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, Long likes, int viewCount, boolean published, Long commentCount, String nickname, String profileImage) {
         this.id = id;
         this.title = title;
         this.username = username;
         this.contents = contents;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-        this.liked = liked;
+        this.likes = likes;
         this.viewCount = viewCount;
         this.published = published;
         this.commentCount = commentCount;
@@ -85,12 +85,12 @@ public class PostWithUserInfo {
         this.modifiedAt = modifiedAt;
     }
 
-    public Long getLiked() {
-        return liked;
+    public Long getLikes() {
+        return likes;
     }
 
-    public void setLiked(Long liked) {
-        this.liked = liked;
+    public void setLikes(Long likes) {
+        this.likes = likes;
     }
 
     public int getViewCount() {
@@ -142,6 +142,7 @@ public class PostWithUserInfo {
         postWithUserInfo.setCreatedAt(post.getCreatedAt());
         postWithUserInfo.setModifiedAt(post.getModifiedAt());
         postWithUserInfo.setPublished(post.isPublished());
+        postWithUserInfo.setLikes(post.getLikes());
         return postWithUserInfo;
     }
 }

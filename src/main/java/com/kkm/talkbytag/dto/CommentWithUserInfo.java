@@ -10,7 +10,7 @@ public class CommentWithUserInfo {
     private String contents;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private int liked;
+    private int likes;
     private boolean published;
     private String nickname;
     private String profileImage;
@@ -18,7 +18,7 @@ public class CommentWithUserInfo {
     public CommentWithUserInfo() {
     }
 
-    public CommentWithUserInfo(String id, String postId, String upperCommentId, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, int liked, boolean published, String nickname, String profileImage) {
+    public CommentWithUserInfo(String id, String postId, String upperCommentId, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, int likes, boolean published, String nickname, String profileImage) {
         this.id = id;
         this.postId = postId;
         this.upperCommentId = upperCommentId;
@@ -26,7 +26,7 @@ public class CommentWithUserInfo {
         this.contents = contents;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-        this.liked = liked;
+        this.likes = likes;
         this.published = published;
         this.nickname = nickname;
         this.profileImage = profileImage;
@@ -88,12 +88,12 @@ public class CommentWithUserInfo {
         this.modifiedAt = modifiedAt;
     }
 
-    public int getLiked() {
-        return liked;
+    public int getLikes() {
+        return likes;
     }
 
-    public void setLiked(int liked) {
-        this.liked = liked;
+    public void setLikes(int likes) {
+        this.likes = likes;
     }
 
     public boolean isPublished() {

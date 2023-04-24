@@ -16,12 +16,13 @@ public class Post {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime modifiedAt;
     private boolean published = true;
+    private long likes;
 
 
     public Post() {
     }
 
-    public Post(String id, String title, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, boolean published) {
+    public Post(String id, String title, String username, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, boolean published, long likes) {
         this.id = id;
         this.title = title;
         this.username = username;
@@ -29,6 +30,7 @@ public class Post {
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
         this.published = published;
+        this.likes = likes;
     }
 
     public String getUsername() {
@@ -85,5 +87,13 @@ public class Post {
 
     public void setModifiedAt(LocalDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
+    }
+
+    public long getLikes() {
+        return likes;
+    }
+
+    public void setLikes(long likes) {
+        this.likes = likes;
     }
 }

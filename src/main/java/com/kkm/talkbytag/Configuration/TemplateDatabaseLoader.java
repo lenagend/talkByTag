@@ -16,9 +16,9 @@ public class TemplateDatabaseLoader {
     @Bean
     CommandLineRunner initialize(MongoOperations mongo) {
         return args -> {
-            for (int i = 0; i < 500; i++){
-                mongo.save(new Post("" + i, "제목" + i, "testuser1@gmail.com", "testContents" + i, LocalDateTime.now(), LocalDateTime.now(), true));
-                Thread.sleep(1); // 0.1초 지연
+            for (int i = 0; i < 100; i++){
+                mongo.save(new Post("" + i, "제목" + i, "testuser1@gmail.com", "testContents" + i, LocalDateTime.now(), LocalDateTime.now(), true, 0));
+                Thread.sleep(10); // 0.1초 지연
             }
             mongo.save(new User("testuser1@gmail.com", "password1", Collections.emptyList()));
             mongo.save(new UserInfo("userInfo1", "testuser1@gmail.com", "운영자", "/images/avatar/master.jpg", null, null, null, null));

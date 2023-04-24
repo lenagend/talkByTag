@@ -11,7 +11,7 @@ import com.kkm.talkbytag.repository.LikedRepository;
 import com.kkm.talkbytag.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,7 +19,6 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Comparator;
 
 @Service
 public class PostService {
@@ -42,7 +41,8 @@ public class PostService {
         this.userInfoService = userInfoService;
     }
 
-    public Flux<Post> getPosts(Pageable pageable, boolean published){return this.postRepository.findAllByPublished(pageable, published);}
+    public Flux<Post> getPosts(Pageable pageable, boolean published){
+        return this.postRepository.findAllByPublishedOrderByCreatedAtDesc(pageable, published);}
 
     public Mono<Post> savePost(Post post){return this.postRepository.save(post);}
 
@@ -109,7 +109,7 @@ public class PostService {
                     commentWithUserInfo.setContents(comment.getContents());
                     commentWithUserInfo.setCreatedAt(comment.getCreatedAt());
                     commentWithUserInfo.setModifiedAt(comment.getModifiedAt());
-                    commentWithUserInfo.setLiked(comment.getLiked());
+                    commentWithUserInfo.setLikes(comment.getLikes());
                     commentWithUserInfo.setPublished(comment.isPublished());
 
                     commentWithUserInfo.setNickname(user.getNickname());
@@ -119,40 +119,91 @@ public class PostService {
                 });
     }
 
-    public Mono<ResponseEntity<Void>> toggleLike(String username, String postId, String commentId) {
-        if (postId != null && commentId != null) {
-            return Mono.error(new IllegalArgumentException("postId와 commentId를 동시에 제공할 수 없습니다."));
-        }
-        if (postId == null && commentId == null) {
-            return Mono.error(new IllegalArgumentException("postId 또는 commentId를 제공해야 합니다."));
-        }
-
-        Mono<Liked> existingLike;
-        if (postId != null) {
-            existingLike = likedRepository.findByUsernameAndPostId(username, postId);
-        } else {
-            existingLike = likedRepository.findByUsernameAndCommentId(username, commentId);
-        }
-
-        return existingLike
-                .flatMap(liked -> {
-                    // 이미 좋아요 상태인 경우, 좋아요 취소
-                    return likedRepository.delete(liked)
-                            .thenReturn(ResponseEntity.noContent().<Void>build());
+    public Mono<Void> addPostLike(String postId, String username) {
+        return postRepository.findById(postId)
+                .flatMap(post -> {
+                    post.setLikes(post.getLikes() + 1);
+                    return postRepository.save(post);
                 })
-                .switchIfEmpty(Mono.defer(() -> {
-                    // 좋아요 상태가 아닌 경우, 좋아요
-                    Liked newLike = new Liked();
-                    newLike.setUsername(username);
-                    if (postId != null) {
-                        newLike.setPostId(postId);
-                    } else {
-                        newLike.setCommentId(commentId);
-                    }
-                    return likedRepository.save(newLike)
-                            .thenReturn(ResponseEntity.ok().<Void>build());
-                }));
+                .flatMap(post -> {
+                    Liked liked = new Liked();
+                    liked.setUsername(username);
+                    liked.setPostId(postId);
+                    return likedRepository.save(liked);
+                })
+                .then();
     }
+
+    public Mono<Boolean> removePostLike(String postId, String username) {
+        return likedRepository.findByUsernameAndPostId(username, postId)
+                .flatMap(liked -> likedRepository.delete(liked)
+                        .then(postRepository.findById(postId))
+                        .flatMap(post -> {
+                            post.setLikes(post.getLikes() - 1);
+                            return postRepository.save(post);
+                        })
+                        .thenReturn(true))
+                .defaultIfEmpty(false);
+    }
+
+    public Mono<Void> addCommentLike(String commentId, String username) {
+        return commentRepository.findById(commentId)
+                .flatMap(comment -> {
+                    comment.setLikes(comment.getLikes() + 1);
+                    return commentRepository.save(comment);
+                })
+                .flatMap(comment -> {
+                    Liked liked = new Liked();
+                    liked.setUsername(username);
+                    liked.setCommentId(commentId);
+                    return likedRepository.save(liked);
+                })
+                .then();
+    }
+
+    public Mono<Boolean> removeCommentLike(String commentId, String username) {
+        return likedRepository.findByUsernameAndCommentId(username, commentId)
+                .flatMap(liked -> likedRepository.delete(liked)
+                        .then(commentRepository.findById(commentId))
+                        .flatMap(comment -> {
+                            comment.setLikes(comment.getLikes() - 1);
+                            return commentRepository.save(comment);
+                        })
+                        .thenReturn(true))
+                .defaultIfEmpty(false);
+    }
+
+    public Mono<Void> toggleLike(String username, @Nullable String postId, @Nullable String commentId) {
+        if (postId != null) {
+            return removePostLike(postId, username)
+                    .flatMap(isRemoved -> {
+                        if (!isRemoved) {
+                            return addPostLike(postId, username);
+                        } else {
+                            return Mono.empty();
+                        }
+                    });
+        }else if (commentId != null) {
+           return removeCommentLike(commentId, username)
+                   .flatMap(isRemoved -> {
+                       if (!isRemoved) {
+                           return addCommentLike(commentId, username);
+                       } else {
+                           return Mono.empty();
+                       }
+                   });
+        }
+        else {
+            return Mono.error(new IllegalArgumentException("Either postId or commentId must be provided."));
+        }
+    }
+
+
+
+
+
+
+
 
     public Mono<Boolean> isPostLikedByUser(String postId, String username) {
         return likedRepository.existsByPostIdAndUsername(postId, username);
@@ -199,30 +250,13 @@ public class PostService {
                 .map(comments -> !comments.isEmpty());
     }
 
-    public Flux<PostWithUserInfo> getTopPostsByLikesOnDate(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Flux<Post> getTopPostsByLikesOnDate(LocalDate startDate, LocalDate endDate, Pageable pageable) {
         LocalDateTime startOfDay = startDate.atStartOfDay();
         LocalDateTime endOfDay = endDate.atTime(LocalTime.MAX);
 
-        return likedRepository.findTopLikedPostsByDateRange(startOfDay, endOfDay, pageable)
-                .flatMap(liked -> postRepository.findById(liked.getPostId())
-                        .flatMap(post -> {
-                            PostWithUserInfo postWithUserInfo = PostWithUserInfo.fromPost(post);
-
-                            return getPostLikeCount(post.getId())
-                                    .flatMap(likesCount -> {
-                                        postWithUserInfo.setLiked(likesCount);
-
-                                        return userInfoService.findByUsername(post.getUsername())
-                                                .map(userInfo -> {
-                                                    postWithUserInfo.setNickname(userInfo.getNickname());
-                                                    postWithUserInfo.setProfileImage(userInfo.getProfileImage());
-                                                    return postWithUserInfo;
-                                                });
-                                    });
-                        }))
-                .sort(Comparator.comparing(PostWithUserInfo::getLiked)
-                        .thenComparing(PostWithUserInfo::getCreatedAt).reversed());
+        return postRepository.findByCreatedAtBetweenAndPublishedOrderByLikesDescCreatedAtDesc(startOfDay, endOfDay,true,  pageable);
     }
+
 
 }
 

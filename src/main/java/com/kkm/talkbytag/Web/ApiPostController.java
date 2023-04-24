@@ -44,17 +44,20 @@ public class ApiPostController {
                                            @RequestParam(required = false) String endDate,
                                            @RequestParam String sortType) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
-
-        if ("likes".equals(sortType)) {
-            LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.now();
-            LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.now();
-            return postService.getTopPostsByLikesOnDate(start, end, pageable);
+        if ("hot".equals(sortType)) {
+            LocalDate now = LocalDate.now();
+            LocalDate yesterday = now.minusDays(1);
+            LocalDate start = startDate != null ? LocalDate.parse(startDate) : yesterday;
+            LocalDate end = endDate != null ? LocalDate.parse(endDate) : now;
+            return postService.getTopPostsByLikesOnDate(start, end, pageable)
+                    .concatMap(postService::getPostWithUserInfo);
         } else {
-            pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+            pageable = PageRequest.of(offset / limit, limit);
             return postService.getPosts(pageable, true)
                     .concatMap(postService::getPostWithUserInfo);
         }
     }
+
 
     @GetMapping("/posts/my")
     public Flux<PostWithUserInfo> getMyPosts(@RequestParam int offset, @RequestParam int limit, @RequestParam boolean published, @RequestHeader("Authorization") String authHeader){
@@ -161,7 +164,8 @@ public class ApiPostController {
             String token = authHeader.replace("Bearer ", "");
             String username = authenticationService.extractUsername(token);
 
-            return postService.toggleLike(username, postId, null);
+            return postService.toggleLike(username, postId, null)
+                    .thenReturn(ResponseEntity.ok().build());
         } catch (Exception e) {
             return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
         }
@@ -173,11 +177,13 @@ public class ApiPostController {
             String token = authHeader.replace("Bearer ", "");
             String username = authenticationService.extractUsername(token);
 
-            return postService.toggleLike(username, null, commentId);
+            return postService.toggleLike(username, null, commentId)
+                    .thenReturn(ResponseEntity.ok().build());
         } catch (Exception e) {
             return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
         }
     }
+
 
     @GetMapping("/posts/{postId}/liked")
     public Mono<ResponseEntity<Boolean>> isPostLikedByUser(@PathVariable String postId, @RequestHeader("Authorization") String authHeader) {

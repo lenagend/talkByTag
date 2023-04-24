@@ -13,11 +13,13 @@ import java.time.LocalDateTime;
 
 
 public interface PostRepository extends ReactiveCrudRepository<Post, String> {
-    Flux<Post> findAllByPublished(Pageable pageable, boolean published);
+    Flux<Post> findAllByPublishedOrderByCreatedAtDesc(Pageable pageable, boolean published);
     Flux<Post> findByTitleContainingAndPublished(Pageable pageable, String title, boolean published);
     Flux<Post> findByContentsContainingAndPublished(Pageable pageable, String contents, boolean published);
     Mono<Long> countByUsernameAndPublished(String username, boolean published);
     Flux<Post> findByUsernameAndPublished(String username, boolean published);
     Flux<Post> findByIdAndPublished(Pageable pageable, String id, boolean published);
     Flux<Post> findByUsernameAndPublished(Pageable pageable,  String username, boolean published);
+    Flux<Post> findByCreatedAtBetweenAndPublishedOrderByLikesDescCreatedAtDesc(LocalDateTime start, LocalDateTime end, boolean published, Pageable pageable);
+
 }
