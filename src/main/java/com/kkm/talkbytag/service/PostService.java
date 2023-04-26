@@ -250,11 +250,31 @@ public class PostService {
                 .map(comments -> !comments.isEmpty());
     }
 
-    public Flux<Post> getTopPostsByLikesOnDate(LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        LocalDateTime startOfDay = startDate.atStartOfDay();
-        LocalDateTime endOfDay = endDate.atTime(LocalTime.MAX);
+    public Flux<Post> getTopPostsByLikesOnDate(String startDate, String endDate, Pageable pageable) {
+        LocalDate now = LocalDate.now();
+        LocalDate yesterday = now.minusDays(1);
+        LocalDate start = startDate != null ? LocalDate.parse(startDate) : yesterday;
+        LocalDate end = endDate != null ? LocalDate.parse(endDate) : now;
+        LocalDateTime startOfDay = start.atStartOfDay();
+        LocalDateTime endOfDay = end.atTime(LocalTime.MAX);
 
         return postRepository.findByCreatedAtBetweenAndPublishedOrderByLikesDescCreatedAtDesc(startOfDay, endOfDay,true,  pageable);
+    }
+
+    public Mono<Long> countPublishedPosts(boolean published){
+        return postRepository.countByPublished(published);
+    }
+
+    public Mono<Long> countTopPostsByLikesOnDate(boolean published, String startDate, String endDate) {
+        LocalDate now = LocalDate.now();
+        LocalDate yesterday = now.minusDays(1);
+        LocalDate start = startDate != null ? LocalDate.parse(startDate) : yesterday;
+        LocalDate end = endDate != null ? LocalDate.parse(endDate) : now;
+        LocalDateTime startOfDay = start.atStartOfDay();
+        LocalDateTime endOfDay = end.atTime(LocalTime.MAX);
+
+        return postRepository.countByCreatedAtBetweenAndPublished(startOfDay, endOfDay, published);
+
     }
 
 

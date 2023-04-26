@@ -45,11 +45,7 @@ public class ApiPostController {
                                            @RequestParam String sortType) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
         if ("hot".equals(sortType)) {
-            LocalDate now = LocalDate.now();
-            LocalDate yesterday = now.minusDays(1);
-            LocalDate start = startDate != null ? LocalDate.parse(startDate) : yesterday;
-            LocalDate end = endDate != null ? LocalDate.parse(endDate) : now;
-            return postService.getTopPostsByLikesOnDate(start, end, pageable)
+            return postService.getTopPostsByLikesOnDate(startDate, endDate, pageable)
                     .concatMap(postService::getPostWithUserInfo);
         } else {
             pageable = PageRequest.of(offset / limit, limit);
@@ -57,6 +53,20 @@ public class ApiPostController {
                     .concatMap(postService::getPostWithUserInfo);
         }
     }
+
+    @GetMapping("/posts/count")
+    public Mono<Long> countPosts(@RequestParam boolean published,
+                                 @RequestParam(required = false) String startDate,
+                                 @RequestParam(required = false) String endDate,
+                                 @RequestParam String sortType) {
+        if ("hot".equals(sortType)) {
+            return postService.countTopPostsByLikesOnDate(published, startDate, endDate);
+        } else {
+            return postService.countPublishedPosts(published);
+
+        }
+    }
+
 
 
     @GetMapping("/posts/my")

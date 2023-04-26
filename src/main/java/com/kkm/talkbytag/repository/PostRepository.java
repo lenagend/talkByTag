@@ -21,5 +21,7 @@ public interface PostRepository extends ReactiveCrudRepository<Post, String> {
     Flux<Post> findByIdAndPublished(Pageable pageable, String id, boolean published);
     Flux<Post> findByUsernameAndPublished(Pageable pageable,  String username, boolean published);
     Flux<Post> findByCreatedAtBetweenAndPublishedOrderByLikesDescCreatedAtDesc(LocalDateTime start, LocalDateTime end, boolean published, Pageable pageable);
+    Mono<Long> countByPublished(boolean published);
+    Mono<Long> countByCreatedAtBetweenAndPublished(LocalDateTime start, LocalDateTime end, boolean published);
 
 }
